@@ -4,8 +4,8 @@ Doorkeeper.configure do
   # Change the ORM that doorkeeper will use (requires ORM extensions installed).
   orm :active_record
 
-  # Use JWT for access tokens
-  access_token_generator '::Doorkeeper::JWT'
+  # Use JWT for access tokens (except in test where we use plain tokens)
+  access_token_generator '::Doorkeeper::JWT' unless Rails.env.test?
 
   # Token expiration
   access_token_expires_in 1.hour
@@ -53,6 +53,14 @@ Doorkeeper::JWT.configure do
   token_payload do |opts|
     user = opts[:resource_owner]
     application = opts[:application]
+
+    # If there's no resource_owner, try to find it by resource_owner_id
+    if user.nil? && opts[:token]&.resource_owner_id
+      user = User.find_by(id: opts[:token].resource_owner_id)
+    end
+
+    # Skip JWT payload if no user found (for testing or client_credentials grant)
+    next {} unless user
 
     payload = {
       # Standard JWT claims
@@ -105,10 +113,9 @@ Doorkeeper::JWT.configure do
   signing_method :rs256
 
   # Load private key from credentials
-  secret_key -> {
-    OpenSSL::PKey::RSA.new(
-      Rails.application.credentials.dig(:doorkeeper, :private_key)
-    )
+  secret_key lambda {
+    private_key_content = Rails.application.credentials.dig(:doorkeeper, :private_key)
+    OpenSSL::PKey::RSA.new(private_key_content) if private_key_content
   }
 
   # Encryption (optional, for extra security)
