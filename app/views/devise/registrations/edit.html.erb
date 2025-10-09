@@ -1,0 +1,120 @@
+<% content_for :title, "Profile Settings - Authlift" %>
+
+<div class="max-w-3xl mx-auto">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Profile Settings</h1>
+    <p class="mt-2 text-sm text-gray-600">Update your personal information and account settings</p>
+  </div>
+
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-900">Personal Information</h2>
+    <% end %>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "space-y-6" }, data: { turbo: false }) do |f| %>
+      <%= render ::Shared::FormErrorsComponent.new(model: resource) %>
+
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <%= f.label :first_name, "First name", class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= f.text_field :first_name, autofocus: true, required: true,
+                class: "block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" %>
+          </div>
+        </div>
+
+        <div>
+          <%= f.label :last_name, "Last name", class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= f.text_field :last_name, required: true,
+                class: "block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" %>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :email, "Email address", class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= f.email_field :email, autocomplete: "email", required: true,
+              class: "block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" %>
+        </div>
+        <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+          <p class="mt-1 text-sm text-amber-600">Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= f.label :phone, "Phone number", class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= f.telephone_field :phone, autocomplete: "tel",
+              class: "block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :locale, "Language", class: "block text-sm font-medium text-gray-700" %>
+        <div class="mt-1">
+          <%= f.select :locale, [["English", "en"], ["Finnish", "fi"], ["Swedish", "sv"]], {},
+              class: "block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" %>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-200 pt-6">
+        <h3 class="text-base font-medium text-gray-900 mb-4">Change Password</h3>
+        <p class="text-sm text-gray-600 mb-4">Leave blank if you don't want to change your password</p>
+
+        <div class="space-y-4">
+          <div>
+            <%= f.label :password, "New password", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= f.password_field :password, autocomplete: "new-password",
+                  class: "block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" %>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Minimum 6 characters</p>
+          </div>
+
+          <div>
+            <%= f.label :password_confirmation, "Confirm new password", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= f.password_field :password_confirmation, autocomplete: "new-password",
+                  class: "block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" %>
+            </div>
+          </div>
+
+          <div>
+            <%= f.label :current_password, class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= f.password_field :current_password, autocomplete: "current-password", required: true,
+                  class: "block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" %>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">We need your current password to confirm changes</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+        <%= f.submit "Update profile", class: "inline-flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" %>
+
+        <%= link_to "Cancel", :back, class: "inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= render ::UI::CardComponent.new(shadow: true, class: "mt-6") do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-red-900">Danger Zone</h2>
+    <% end %>
+
+    <div class="space-y-4">
+      <div>
+        <h3 class="text-sm font-medium text-gray-900">Delete account</h3>
+        <p class="mt-1 text-sm text-gray-600">Once you delete your account, there is no going back. Please be certain.</p>
+      </div>
+
+      <%= button_to "Delete my account",
+          registration_path(resource_name),
+          data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete your account? This action cannot be undone." },
+          class: "inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors" %>
+    </div>
+  <% end %>
+</div>
