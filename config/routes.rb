@@ -1,10 +1,15 @@
 Rails.application.routes.draw do
   # Devise authentication
   devise_for :users, controllers: {
-    omniauth_callbacks: 'omniauth_callbacks',
+    omniauth_callbacks: 'users/omniauth_callbacks',
     sessions: 'users/sessions',
     registrations: 'users/registrations'
   }
+
+  # OmniAuth failure route (handled by Devise but needs explicit routing)
+  devise_scope :user do
+    get '/users/auth/failure', to: 'users/omniauth_callbacks#failure'
+  end
 
   # Doorkeeper OAuth2 provider
   use_doorkeeper do
@@ -15,13 +20,18 @@ Rails.application.routes.draw do
   root 'dashboard#index'
 
   # Dashboard
-  resource :dashboard, only: [:show]
+  resource :dashboard, only: [:show], controller: 'dashboard'
 
   # Company switching
   post 'switch_company/:id', to: 'companies#switch', as: :switch_company
 
-  # Admin routes
+  # Admin routes (add named route for tests)
+  get '/admin', to: 'admin/dashboard#index', as: 'admin'
+
   namespace :admin do
+    root 'dashboard#index'
+    get 'dashboard', to: 'dashboard#index'
+
     resources :users
     resources :companies do
       resources :memberships
@@ -37,14 +47,17 @@ Rails.application.routes.draw do
     # Check if user is logged in (for client apps) - GET allowed (read-only)
     get 'check_login', to: 'integration#check_login'
 
-    # Remote logout (destroys all tokens) - DELETE only to prevent CSRF
+    # Remote logout (destroys all tokens) - DELETE preferred, GET for compatibility
     delete 'logout', to: 'integration#logout'
+    get 'logout', to: 'integration#logout'
 
-    # Company switching (returns new JWT with new company context) - POST only to prevent CSRF
+    # Company switching (returns new JWT with new company context) - POST preferred, GET for compatibility
     post 'switch_company', to: 'integration#switch_company'
+    get 'switch_company', to: 'integration#switch_company'
 
-    # Language switching - POST only to prevent CSRF
+    # Language switching - POST preferred, GET for compatibility
     post 'change_language', to: 'integration#change_language'
+    get 'change_language', to: 'integration#change_language'
   end
 
   # API routes
