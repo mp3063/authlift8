@@ -7,8 +7,9 @@
 # Ignore bundler config.
 /.bundle
 
-# Ignore all environment files.
+# Ignore all environment files (except .env.example).
 /.env*
+!/.env.example
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -20,6 +21,7 @@
 /tmp/pids/*
 !/tmp/pids/
 !/tmp/pids/.keep
+/tmp
 
 # Ignore storage (uploaded files in development and any SQLite databases).
 /storage/*
@@ -32,3 +34,9 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+/.idea
+/.claude
+.mcp*
+
+/app/assets/builds/*
+!/app/assets/builds/.keep
