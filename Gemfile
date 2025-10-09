@@ -27,9 +27,12 @@ gem "bcrypt", "~> 3.1"               # Password hashing
 gem "doorkeeper", "~> 5.7"           # OAuth2 server
 gem "doorkeeper-jwt", "~> 0.4"       # JWT token support
 
-# Social Login (Google only)
+# Social Login
 gem "omniauth", "~> 2.1"
 gem "omniauth-google-oauth2"
+gem "omniauth-github"
+gem "omniauth-facebook"
+gem "omniauth-twitter"
 gem "omniauth-rails_csrf_protection"
 
 # Security
@@ -97,4 +100,5 @@ group :test do
   gem "simplecov", require: false
   gem "vcr"
   gem "webmock"
+  gem "rails-controller-testing"  # Provides assigns helper for request specs
 end
