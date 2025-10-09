@@ -32,21 +32,20 @@ module Api
           return
         end
 
-        # Find active membership for the requested company
+        # Find membership for the requested company (including inactive)
         membership = if params[:company_id].present?
-          # IDOR FIX: Verify active membership before granting access
-          user.memberships.active.find_by(company_id: params[:company_id])
+          # IDOR FIX: Find membership first, then verify it's active
+          user.memberships.find_by(company_id: params[:company_id])
         else
-          # Use current company membership if no ID provided
-          user.current_membership
-        end
-
-        # Log security-relevant access attempts
-        if params[:company_id].present? && membership.nil?
-          Rails.logger.warn "SECURITY: User #{user.id} attempted to access company #{params[:company_id]} without active membership - IP: #{request.remote_ip}"
+          # Use current company membership if no ID provided, fallback to first active membership
+          user.current_membership || user.memberships.active.first
         end
 
         unless membership
+          # Log access attempt to non-existent company or company without active membership
+          if params[:company_id].present?
+            Rails.logger.warn "SECURITY: User #{user.id} attempted to access company #{params[:company_id]} without active membership - IP: #{request.remote_ip}"
+          end
           render json: { error: 'Company not found or access denied' }, status: :forbidden
           return
         end

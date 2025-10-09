@@ -28,7 +28,7 @@ RSpec.describe 'Api::V1::UsersController Security', type: :request do
   let(:access_token) do
     create(:oauth_access_token,
            resource_owner_id: user.id,
-           application: oauth_application,
+           application_id: oauth_application.id,
            scopes: 'public')
   end
 
@@ -122,13 +122,13 @@ RSpec.describe 'Api::V1::UsersController Security', type: :request do
         client = create(:company)
 
         company1.owned_partnerships.create!(
-          client_company: client,
+          partner_client: client,
           active: true,
           info: {}
         )
 
         company1.client_partnerships.create!(
-          owner_company: supplier,
+          partner_owner: supplier,
           active: true,
           info: {}
         )
@@ -260,7 +260,7 @@ RSpec.describe 'Api::V1::UsersController Security', type: :request do
         # Create orphaned token
         orphaned_token = create(:oauth_access_token,
                                 resource_owner_id: user_id,
-                                application: oauth_application)
+                                application_id: oauth_application.id)
 
         get '/api/v1/users/profile',
             headers: { 'Authorization' => "Bearer #{orphaned_token.token}" }
