@@ -1,14 +1,71 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  # Devise authentication
+  devise_for :users, controllers: {
+    omniauth_callbacks: 'omniauth_callbacks',
+    sessions: 'users/sessions',
+    registrations: 'users/registrations'
+  }
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  # Doorkeeper OAuth2 provider
+  use_doorkeeper do
+    skip_controllers :applications, :authorized_applications
+  end
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # Root path
+  root 'dashboard#index'
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  # Dashboard
+  resource :dashboard, only: [:show]
+
+  # Company switching
+  post 'switch_company/:id', to: 'companies#switch', as: :switch_company
+
+  # Admin routes
+  namespace :admin do
+    resources :users
+    resources :companies do
+      resources :memberships
+      resources :partnerships
+    end
+    resources :oauth_applications
+    resources :api_keys
+  end
+
+  # Integration endpoints (for client apps - NO GEM NEEDED!)
+  # Security: State-changing operations use only POST/DELETE to prevent CSRF attacks
+  namespace :auth do
+    # Check if user is logged in (for client apps) - GET allowed (read-only)
+    get 'check_login', to: 'integration#check_login'
+
+    # Remote logout (destroys all tokens) - DELETE only to prevent CSRF
+    delete 'logout', to: 'integration#logout'
+
+    # Company switching (returns new JWT with new company context) - POST only to prevent CSRF
+    post 'switch_company', to: 'integration#switch_company'
+
+    # Language switching - POST only to prevent CSRF
+    post 'change_language', to: 'integration#change_language'
+  end
+
+  # API routes
+  namespace :api do
+    namespace :v1 do
+      # Public key endpoints (no authentication required)
+      get '.well-known/jwks.json', to: 'public_keys#jwks'
+      get 'public_key.pem', to: 'public_keys#pem'
+
+      # User endpoints (OAuth authentication required)
+      get 'users/profile', to: 'users#profile'
+      get 'users/company_info(/:company_id)', to: 'users#company_info'
+
+      # Company endpoints (OAuth authentication required)
+      resources :companies, only: [:index, :show]
+
+      # API Key authentication
+      post 'auth/api_key', to: 'auth#api_key'
+    end
+  end
+
+  # Health check endpoint
+  get 'up', to: 'health#show'
 end
