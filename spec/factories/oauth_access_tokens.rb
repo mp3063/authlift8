@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :oauth_access_token, class: 'Doorkeeper::AccessToken' do
-    association :application, factory: :oauth_application
+    application_id { create(:oauth_application).id }
     resource_owner_id { create(:user).id }
     expires_in { 7200 }
     scopes { 'public' }

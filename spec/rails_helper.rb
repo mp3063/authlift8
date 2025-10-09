@@ -1,6 +1,11 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
+
+# Set test environment variables before loading Rails
+ENV['AUTHLIFT_URL'] ||= 'http://localhost:3231'
+ENV['ALLOWED_ORIGINS'] ||= 'http://localhost:3232,http://localhost:3233,http://example.com'
+
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
@@ -73,4 +78,10 @@ RSpec.configure do |config|
 
   # Include Devise test helpers for controller/request specs
   config.include Devise::Test::IntegrationHelpers, type: :request
+
+  # Include Rails controller testing gem helpers for request specs
+  # This provides assigns(), assert_template, etc. for request specs
+  config.include Rails::Controller::Testing::TestProcess, type: :request
+  config.include Rails::Controller::Testing::TemplateAssertions, type: :request
+  config.include Rails::Controller::Testing::Integration, type: :request
 end
