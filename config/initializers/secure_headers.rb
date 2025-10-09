@@ -208,9 +208,6 @@ SecureHeaders::Configuration.default do |config|
     # Set to 'none' to prevent all framing
     frame_ancestors: %w['none'],
 
-    # Block all mixed content (HTTP resources on HTTPS pages)
-    block_all_mixed_content: true,
-
     # Upgrade insecure requests to HTTPS
     upgrade_insecure_requests: true,
 
@@ -262,11 +259,10 @@ SecureHeaders::Configuration.default do |config|
   #
   # Note: This header is deprecated as Certificate Transparency is now
   # mandatory for all publicly trusted certificates. Modern browsers
-  # no longer need this header.
-  #
-  # Disabled by default - use only if you have specific CT monitoring needs
+  # no longer need this header. The expect_ct configuration has been
+  # removed from secure_headers gem v7.0+
   # =============================================================================
-  config.expect_ct = SecureHeaders::OPT_OUT
+  # config.expect_ct = SecureHeaders::OPT_OUT  # DEPRECATED - removed in v7.0+
 
   # =============================================================================
   # Custom Headers
