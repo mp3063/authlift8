@@ -45,7 +45,7 @@ RSpec.describe Partnership, type: :model do
 
     context 'cannot_partner_with_self validation' do
       it 'rejects partnership where owner and client are the same' do
-        partnership = build(:partnership, partner_owner: owner_company, partner_client: owner_company)
+        partnership = Partnership.new(partner_owner: owner_company, partner_client: owner_company)
         expect(partnership).not_to be_valid
         expect(partnership.errors[:partner_client_id]).to include('cannot be the same as owner')
       end
@@ -478,12 +478,12 @@ RSpec.describe Partnership, type: :model do
       let(:company) { create(:company) }
 
       it 'prevents self-partnership' do
-        partnership = build(:partnership, partner_owner: company, partner_client: company)
+        partnership = Partnership.new(partner_owner: company, partner_client: company)
         expect(partnership).not_to be_valid
       end
 
       it 'shows appropriate error message' do
-        partnership = build(:partnership, partner_owner: company, partner_client: company)
+        partnership = Partnership.new(partner_owner: company, partner_client: company)
         partnership.valid?
         expect(partnership.errors[:partner_client_id]).to include('cannot be the same as owner')
       end
