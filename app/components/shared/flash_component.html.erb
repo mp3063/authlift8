@@ -1,0 +1,29 @@
+<div class="fixed top-4 right-4 z-50 space-y-2" data-controller="flash">
+  <% @flash.each do |type, message| %>
+    <% config = flash_config(type) %>
+    <div class="max-w-md w-full <%= config[:bg] %> border <%= config[:border] %> rounded-lg p-4 shadow-lg animate-slide-in"
+         data-flash-target="message"
+         data-action="click->flash#dismiss"
+         role="alert">
+      <div class="flex items-start">
+        <div class="flex-shrink-0 <%= config[:icon_color] %>">
+          <%= icon_svg(type).html_safe %>
+        </div>
+        <div class="ml-3 flex-1">
+          <p class="text-sm font-medium <%= config[:text] %>">
+            <%= message %>
+          </p>
+        </div>
+        <div class="ml-4 flex-shrink-0 flex">
+          <button type="button"
+                  class="inline-flex <%= config[:text] %> hover:opacity-75 focus:outline-none"
+                  data-action="click->flash#dismiss">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
