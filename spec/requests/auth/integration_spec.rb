@@ -16,7 +16,8 @@ RSpec.describe 'Auth::Integration', type: :request do
     payload = {
       sub: user.id.to_s,
       exp: 1.hour.from_now.to_i,
-      iat: Time.now.to_i
+      iat: Time.now.to_i,
+      iss: ENV['AUTHLIFT_URL'] || 'http://www.example.com'
     }
 
     JWT.encode(payload, private_key, 'RS256')
@@ -47,10 +48,11 @@ RSpec.describe 'Auth::Integration', type: :request do
     end
 
     context 'without return_to parameter' do
-      it 'raises an error' do
-        expect {
-          get '/auth/check_login'
-        }.to raise_error(ArgumentError)
+      it 'returns bad request' do
+        get '/auth/check_login'
+
+        expect(response).to have_http_status(:bad_request)
+        expect(JSON.parse(response.body)['error']).to eq('Invalid redirect URL')
       end
     end
   end
@@ -95,7 +97,7 @@ RSpec.describe 'Auth::Integration', type: :request do
         }
 
         expect(response).to redirect_to('http://example.com')
-        expect(flash[:alert]).to eq('Invalid token')
+        expect(flash[:alert]).to eq('Invalid authentication token')
       end
     end
 
@@ -199,7 +201,7 @@ RSpec.describe 'Auth::Integration', type: :request do
         }
 
         expect(response).to redirect_to('http://example.com')
-        expect(flash[:alert]).to eq('Invalid token')
+        expect(flash[:alert]).to eq('Invalid authentication token')
       end
     end
 
@@ -302,7 +304,7 @@ RSpec.describe 'Auth::Integration', type: :request do
         }
 
         expect(response).to redirect_to('http://example.com')
-        expect(flash[:alert]).to eq('Invalid token')
+        expect(flash[:alert]).to eq('Invalid authentication token')
       end
     end
 
