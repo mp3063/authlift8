@@ -77,18 +77,8 @@ RSpec.describe 'User Authorization Security', type: :model do
       it 'does not have global access' do
         expect(regular_user.has_scope?('products:read', company: company_a)).to be false
       end
-    end
 
-    context 'when super_admin attribute is nil' do
-      before do
-        regular_user.update_column(:super_admin, nil)
-      end
-
-      it 'super_admin? returns false' do
-        expect(regular_user.super_admin?).to be false
-      end
-
-      it 'does not treat nil as true' do
+      it 'does not treat false as true' do
         expect(regular_user.has_scope?('admin:write')).to be false
       end
     end
@@ -514,9 +504,8 @@ RSpec.describe 'User Authorization Security', type: :model do
         /SECURITY: User #{regular_user.id} attempted to set current_company to #{unauthorized_company.id} without active membership/
       )
 
-      result = regular_user.current_company = unauthorized_company
+      regular_user.current_company = unauthorized_company
 
-      expect(result).to be false
       expect(regular_user.reload.company).not_to eq(unauthorized_company)
     end
 

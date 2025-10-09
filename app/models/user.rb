@@ -8,7 +8,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :trackable, :omniauthable,
-         omniauth_providers: [:google_oauth2]
+         omniauth_providers: [:google_oauth2, :github, :facebook, :twitter]
 
   # Associations
   belongs_to :company, optional: true  # Direct company for current context
@@ -26,33 +26,38 @@ class User < ApplicationRecord
 
   # Validations
   validates :email, presence: true, uniqueness: true
-  validates :first_name, presence: true
-  validates :last_name, presence: true
+  validates :first_name, presence: true, unless: :oauth_user?
+  validates :last_name, presence: true, unless: :oauth_user?
 
   # Scopes
   scope :active, -> { where.not(email: nil) }
+  scope :admins, -> { where(admin: true) }
   scope :super_admins, -> { where(super_admin: true) }
 
   # Current company context
-  # SECURITY: Only returns company if user has active membership
+  # SECURITY: Only returns company if user has an active membership
   def current_company
-    # Use direct company if set and has active membership
-    if company && memberships.active.exists?(company: company)
-      company
-    else
-      # Fall back to first company with active membership
-      memberships.active.includes(:company).first&.company
-    end
+    # Return nil if no company is assigned
+    return nil unless company
+
+    # Only return company if user has an active membership
+    memberships.active.exists?(company: company) ? company : nil
   end
 
   def current_company=(new_company)
-    # SECURITY: Only allow setting company if user has active membership
-    if new_company.nil? || memberships.active.exists?(company: new_company)
-      update(company: new_company)
-    else
-      Rails.logger.warn "SECURITY: User #{id} attempted to set current_company to #{new_company.id} without active membership"
-      false
+    # Allow setting company to nil
+    if new_company.nil?
+      update(company: nil)
+      return true
     end
+
+    # SECURITY: Validate active membership before allowing company assignment
+    unless memberships.active.exists?(company: new_company)
+      Rails.logger.warn("SECURITY: User #{id} attempted to set current_company to #{new_company.id} without active membership")
+      return false
+    end
+
+    update(company: new_company)
   end
 
   def current_membership
@@ -84,6 +89,9 @@ class User < ApplicationRecord
     # Super admins have global access across all companies
     return true if super_admin?
 
+    # User-level admins have access to any scope (legacy support)
+    return true if admin?
+
     target_company = company || current_company
     return false unless target_company
 
@@ -103,21 +111,54 @@ class User < ApplicationRecord
     super_admin == true
   end
 
+  # Admin check - user-level admin access
+  def admin?
+    admin == true
+  end
+
   # Check if user is admin for a specific company
   def admin_for?(target_company)
     return true if super_admin?
 
     membership = memberships.find_by(company: target_company, active: true)
-    membership&.owner? || membership&.admin?
+    return false unless membership
+
+    membership.owner? || membership.admin?
+  end
+
+  # Check if user was created via OAuth (for validation logic)
+  def oauth_user?
+    # OAuth users have randomly generated passwords and no sign_in_count initially
+    encrypted_password.present? && sign_in_count.to_i.zero? && (first_name.blank? || last_name.blank?)
   end
 
   # OmniAuth
   def self.from_omniauth(auth)
-    where(email: auth.info.email).first_or_create do |user|
-      user.email = auth.info.email
-      user.password = Devise.friendly_token[0, 20]
-      user.first_name = auth.info.first_name || auth.info.name&.split&.first || ''
-      user.last_name = auth.info.last_name || auth.info.name&.split&.last || ''
+    user = where(email: auth.info.email).first_or_initialize do |u|
+      u.email = auth.info.email
+      u.password = Devise.friendly_token[0, 20]
+      u.first_name = auth.info.first_name || auth.info.name&.split&.first || ''
+      u.last_name = auth.info.last_name || auth.info.name&.split&.last || ''
     end
+
+    # Create a personal company for new OAuth users
+    if user.new_record? && user.company.nil?
+      company = Company.create!(
+        name: "#{user.email}'s Company",
+        active: true
+      )
+      user.company = company
+      user.save!
+
+      # Create owner membership
+      Membership.create!(
+        user: user,
+        company: company,
+        role: 'owner',
+        active: true
+      )
+    end
+
+    user
   end
 end
