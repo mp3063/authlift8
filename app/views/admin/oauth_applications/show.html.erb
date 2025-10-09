@@ -1,0 +1,316 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900"><%= @oauth_application.name %></h1>
+      <p class="mt-2 text-gray-600">OAuth2 Application Details</p>
+    </div>
+    <div class="flex gap-3">
+      <%= link_to edit_admin_oauth_application_path(@oauth_application), class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" do %>
+        Edit Application
+      <% end %>
+      <%= link_to admin_oauth_applications_path, class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" do %>
+        Back to Applications
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Application Details -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-900">Application Information</h2>
+    <% end %>
+
+    <div class="p-6">
+      <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Application Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @oauth_application.name %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Client ID (UID)</dt>
+          <dd class="mt-1">
+            <code class="px-2 py-1 bg-gray-100 rounded text-sm font-mono"><%= @oauth_application.uid %></code>
+          </dd>
+        </div>
+
+        <div class="md:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Client Secret</dt>
+          <dd class="mt-1">
+            <code class="px-2 py-1 bg-yellow-100 rounded text-sm font-mono"><%= @oauth_application.secret %></code>
+            <p class="mt-1 text-xs text-yellow-700">Keep this secret secure. Do not share publicly.</p>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Application Type</dt>
+          <dd class="mt-1">
+            <% if @oauth_application.confidential %>
+              <span class="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">Confidential</span>
+            <% else %>
+              <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Public</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Owner</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <% if @oauth_application.owner %>
+              <% if @oauth_application.owner_type == 'Company' %>
+                <%= link_to @oauth_application.owner.name, admin_company_path(@oauth_application.owner), class: "text-blue-600 hover:text-blue-900" %>
+              <% elsif @oauth_application.owner_type == 'User' %>
+                <%= link_to @oauth_application.owner.full_name, admin_user_path(@oauth_application.owner), class: "text-blue-600 hover:text-blue-900" %>
+              <% else %>
+                <%= @oauth_application.owner_type %>
+              <% end %>
+            <% else %>
+              <span class="text-gray-400">No owner</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div class="md:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Home URL</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <% if @oauth_application.home.present? %>
+              <%= link_to @oauth_application.home, @oauth_application.home, target: "_blank", class: "text-blue-600 hover:text-blue-900" %>
+            <% else %>
+              <span class="text-gray-400">Not set</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div class="md:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Redirect URIs</dt>
+          <dd class="mt-1">
+            <% if @oauth_application.redirect_uri.present? %>
+              <div class="space-y-1">
+                <% @oauth_application.redirect_uri.split("\n").each do |uri| %>
+                  <code class="block px-2 py-1 bg-gray-100 rounded text-sm font-mono"><%= uri %></code>
+                <% end %>
+              </div>
+            <% else %>
+              <span class="text-sm text-gray-400">None configured</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div class="md:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Scopes</dt>
+          <dd class="mt-1">
+            <% if @oauth_application.scopes.present? %>
+              <div class="flex flex-wrap gap-2">
+                <% @oauth_application.scopes.to_s.split(' ').each do |scope| %>
+                  <span class="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded"><%= scope %></span>
+                <% end %>
+              </div>
+            <% else %>
+              <span class="text-sm text-gray-400">Default scopes</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Trusted Application</dt>
+          <dd class="mt-1">
+            <% if @oauth_application.trusted %>
+              <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Yes</span>
+              <p class="mt-1 text-xs text-gray-500">Trusted apps can skip user authorization</p>
+            <% else %>
+              <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">No</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Partnerships Allowed</dt>
+          <dd class="mt-1">
+            <% if @oauth_application.partnerships_allowed %>
+              <span class="px-2 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full">Yes</span>
+              <p class="mt-1 text-xs text-gray-500">Can access partner companies</p>
+            <% else %>
+              <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">No</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Application Icon</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @oauth_application.application_icon || '-' %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Created At</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @oauth_application.created_at.strftime('%B %d, %Y at %I:%M %p') %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Updated At</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @oauth_application.updated_at.strftime('%B %d, %Y at %I:%M %p') %></dd>
+        </div>
+      </dl>
+    </div>
+  <% end %>
+
+  <!-- Access Tokens -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Recent Access Tokens (Last 10)</h2>
+      </div>
+    <% end %>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token (partial)</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scopes</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if @access_tokens.any? %>
+            <% @access_tokens.each do |token| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <code class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">
+                    <%= token.token[0..15] %>...
+                  </code>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <% if token.resource_owner %>
+                    <%= link_to token.resource_owner.full_name, admin_user_path(token.resource_owner), class: "text-blue-600 hover:text-blue-900" %>
+                  <% else %>
+                    <span class="text-gray-400">N/A</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <% if token.scopes.present? %>
+                    <div class="flex flex-wrap gap-1">
+                      <% token.scopes.to_s.split(' ').first(2).each do |scope| %>
+                        <span class="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded"><%= scope %></span>
+                      <% end %>
+                      <% if token.scopes.to_s.split(' ').count > 2 %>
+                        <span class="text-xs text-gray-400">+<%= token.scopes.to_s.split(' ').count - 2 %></span>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <span class="text-gray-400">None</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if token.revoked_at.nil? && (token.expires_in.nil? || token.created_at + token.expires_in > Time.current) %>
+                    <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+                  <% elsif token.revoked_at.present? %>
+                    <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Revoked</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Expired</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= token.created_at.strftime('%b %d, %Y') %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <% if token.expires_in %>
+                    <%= (token.created_at + token.expires_in).strftime('%b %d, %Y') %>
+                  <% else %>
+                    <span class="text-gray-400">Never</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">
+                No access tokens issued yet
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <!-- Allowed Companies -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Allowed Companies (<%= @allowed_companies.count %>)</h2>
+      </div>
+    <% end %>
+
+    <div class="p-6">
+      <% if @allowed_companies.any? %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% @allowed_companies.each do |company| %>
+            <div class="p-4 bg-gray-50 rounded-lg">
+              <%= link_to company.name, admin_company_path(company), class: "text-sm font-medium text-blue-600 hover:text-blue-900" %>
+              <p class="text-xs text-gray-500 mt-1">Code: <%= company.code %></p>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500">No allowed companies configured</p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Application Domains -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Application Domains (<%= @application_domains.count %>)</h2>
+      </div>
+    <% end %>
+
+    <div class="p-6">
+      <% if @application_domains.any? %>
+        <div class="space-y-3">
+          <% @application_domains.each do |domain| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div>
+                <p class="text-sm font-medium text-gray-900"><%= domain.domain %></p>
+                <p class="text-xs text-gray-500">
+                  Company: <%= link_to domain.company.name, admin_company_path(domain.company), class: "text-blue-600 hover:text-blue-900" %>
+                </p>
+              </div>
+              <% if domain.verified %>
+                <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Verified</span>
+              <% else %>
+                <span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">Unverified</span>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500">No application domains configured</p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Danger Zone -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
+    <% end %>
+
+    <div class="p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-medium text-gray-900">Delete OAuth Application</h3>
+          <p class="mt-1 text-sm text-gray-500">Permanently delete this OAuth application. This action cannot be undone.</p>
+        </div>
+        <%= button_to "Delete Application", admin_oauth_application_path(@oauth_application),
+            method: :delete,
+            form: { data: { turbo_confirm: "Are you sure you want to delete #{@oauth_application.name}? This action cannot be undone and will revoke all active tokens." } },
+            class: "px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium" %>
+      </div>
+    </div>
+  <% end %>
+</div>

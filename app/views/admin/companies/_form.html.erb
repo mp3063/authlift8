@@ -1,0 +1,162 @@
+<%= form_with model: [:admin, company], class: "space-y-6" do |form| %>
+  <!-- Display Errors -->
+  <% if company.errors.any? %>
+    <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+      <div class="flex items-start gap-2">
+        <svg class="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(company.errors.count, "error") %> prohibited this company from being saved:
+          </h3>
+          <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+            <% company.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Company Name -->
+    <div class="md:col-span-2">
+      <%= form.label :name, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :name,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          required: true %>
+    </div>
+
+    <!-- Company Code -->
+    <div>
+      <%= form.label :code, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :code,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          required: true,
+          maxlength: 10 %>
+      <p class="mt-1 text-xs text-gray-500">Unique company identifier (max 10 characters)</p>
+    </div>
+
+    <!-- Active Status -->
+    <div class="flex items-center pt-7">
+      <%= form.check_box :active,
+          class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      <%= form.label :active, class: "ml-2 text-sm font-medium text-gray-700" %>
+    </div>
+
+    <!-- Email -->
+    <div>
+      <%= form.label :email, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.email_field :email,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+
+    <!-- Phone -->
+    <div>
+      <%= form.label :phone, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.telephone_field :phone,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+
+    <!-- Website -->
+    <div class="md:col-span-2">
+      <%= form.label :website, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.url_field :website,
+          placeholder: "https://example.com",
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+
+    <!-- VAT ID -->
+    <div>
+      <%= form.label :vat_id, "VAT ID", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :vat_id,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+
+    <!-- Business ID -->
+    <div>
+      <%= form.label :business_id, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :business_id,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+  </div>
+
+  <!-- Address Section -->
+  <div class="pt-6 border-t border-gray-200">
+    <h3 class="text-base font-semibold text-gray-900 mb-4">Address Information</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Address Line 1 -->
+      <div class="md:col-span-2">
+        <%= form.label :address_line1, "Address Line 1", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :address_line1,
+            class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <!-- Address Line 2 -->
+      <div class="md:col-span-2">
+        <%= form.label :address_line2, "Address Line 2", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :address_line2,
+            class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <!-- City -->
+      <div>
+        <%= form.label :city, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :city,
+            class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <!-- State -->
+      <div>
+        <%= form.label :state, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :state,
+            class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <!-- Postal Code -->
+      <div>
+        <%= form.label :postal_code, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :postal_code,
+            class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <!-- Country -->
+      <div>
+        <%= form.label :country, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :country,
+            class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Section -->
+  <div class="pt-6 border-t border-gray-200">
+    <h3 class="text-base font-semibold text-gray-900 mb-4">Additional Settings</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Locale -->
+      <div>
+        <%= form.label :locale, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.select :locale,
+            options_for_select([['English', 'en'], ['Spanish', 'es'], ['French', 'fr'], ['German', 'de']], company.locale || 'en'),
+            {},
+            class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      </div>
+
+      <!-- Logo Code -->
+      <div>
+        <%= form.label :logo_code, class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :logo_code,
+            class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+        <p class="mt-1 text-xs text-gray-500">Logo identifier or path</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+    <%= link_to "Cancel", company.persisted? ? admin_company_path(company) : admin_companies_path, class: "px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" %>
+    <%= form.submit company.persisted? ? "Save Changes" : "Create Company", class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" %>
+  </div>
+<% end %>

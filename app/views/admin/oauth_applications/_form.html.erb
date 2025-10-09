@@ -1,0 +1,140 @@
+<%= form_with model: oauth_application,
+              url: oauth_application.persisted? ? admin_oauth_application_path(oauth_application) : admin_oauth_applications_path,
+              scope: :doorkeeper_application,
+              class: "space-y-6" do |form| %>
+  <!-- Display Errors -->
+  <% if oauth_application.errors.any? %>
+    <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+      <div class="flex items-start gap-2">
+        <svg class="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(oauth_application.errors.count, "error") %> prohibited this application from being saved:
+          </h3>
+          <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+            <% oauth_application.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Application Name -->
+    <div class="md:col-span-2">
+      <%= form.label :name, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :name,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          required: true %>
+      <p class="mt-1 text-xs text-gray-500">Public name of your OAuth application</p>
+    </div>
+
+    <!-- Home URL -->
+    <div class="md:col-span-2">
+      <%= form.label :home, "Home URL", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.url_field :home,
+          placeholder: "https://example.com",
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <p class="mt-1 text-xs text-gray-500">Homepage of your application</p>
+    </div>
+
+    <!-- Redirect URIs -->
+    <div class="md:col-span-2">
+      <%= form.label :redirect_uri, "Redirect URIs", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_area :redirect_uri,
+          rows: 4,
+          placeholder: "https://example.com/callback\nhttps://example.com/oauth/callback",
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          required: true %>
+      <p class="mt-1 text-xs text-gray-500">One URI per line. Users will be redirected to these URIs after authorization.</p>
+    </div>
+
+    <!-- Scopes -->
+    <div class="md:col-span-2">
+      <%= form.label :scopes, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :scopes,
+          placeholder: "read write profile email",
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <p class="mt-1 text-xs text-gray-500">Space-separated list of scopes this application can request</p>
+    </div>
+
+    <!-- Owner Type -->
+    <div>
+      <%= form.label :owner_type, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.select :owner_type,
+          options_for_select([['Company', 'Company'], ['User', 'User']], oauth_application.owner_type),
+          { include_blank: 'None' },
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <p class="mt-1 text-xs text-gray-500">Type of entity that owns this application</p>
+    </div>
+
+    <!-- Owner ID -->
+    <div>
+      <%= form.label :owner_id, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.number_field :owner_id,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <p class="mt-1 text-xs text-gray-500">ID of the owning company or user</p>
+    </div>
+
+    <!-- Application Icon -->
+    <div class="md:col-span-2">
+      <%= form.label :application_icon, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :application_icon,
+          placeholder: "icon-name or URL",
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <p class="mt-1 text-xs text-gray-500">Icon identifier or URL for the application</p>
+    </div>
+  </div>
+
+  <!-- Settings Section -->
+  <div class="pt-6 border-t border-gray-200">
+    <h3 class="text-base font-semibold text-gray-900 mb-4">Application Settings</h3>
+    <div class="space-y-4">
+      <!-- Confidential -->
+      <div class="flex items-start gap-3">
+        <%= form.check_box :confidential,
+            class: "mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+        <div class="flex-1">
+          <%= form.label :confidential, class: "block text-sm font-medium text-gray-700" %>
+          <p class="mt-1 text-xs text-gray-500">
+            Confidential clients can keep their credentials secret. Check this for server-side apps. Uncheck for SPAs and mobile apps.
+          </p>
+        </div>
+      </div>
+
+      <!-- Trusted -->
+      <div class="flex items-start gap-3">
+        <%= form.check_box :trusted,
+            class: "mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+        <div class="flex-1">
+          <%= form.label :trusted, class: "block text-sm font-medium text-gray-700" %>
+          <p class="mt-1 text-xs text-gray-500">
+            Trusted applications can skip the authorization step. Use with caution - only for first-party apps.
+          </p>
+        </div>
+      </div>
+
+      <!-- Partnerships Allowed -->
+      <div class="flex items-start gap-3">
+        <%= form.check_box :partnerships_allowed,
+            class: "mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+        <div class="flex-1">
+          <%= form.label :partnerships_allowed, class: "block text-sm font-medium text-gray-700" %>
+          <p class="mt-1 text-xs text-gray-500">
+            Allow this application to access data from partner companies through partnership relationships.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+    <%= link_to "Cancel", oauth_application.persisted? ? admin_oauth_application_path(oauth_application) : admin_oauth_applications_path, class: "px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" %>
+    <%= form.submit oauth_application.persisted? ? "Save Changes" : "Create Application", class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" %>
+  </div>
+<% end %>

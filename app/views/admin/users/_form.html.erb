@@ -1,0 +1,108 @@
+<%= form_with model: [:admin, user], class: "space-y-6" do |form| %>
+  <!-- Display Errors -->
+  <% if user.errors.any? %>
+    <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+      <div class="flex items-start gap-2">
+        <svg class="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(user.errors.count, "error") %> prohibited this user from being saved:
+          </h3>
+          <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+            <% user.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- First Name -->
+    <div>
+      <%= form.label :first_name, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :first_name,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          required: true %>
+    </div>
+
+    <!-- Last Name -->
+    <div>
+      <%= form.label :last_name, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :last_name,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          required: true %>
+    </div>
+
+    <!-- Email -->
+    <div class="md:col-span-2">
+      <%= form.label :email, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.email_field :email,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          required: true %>
+      <p class="mt-1 text-xs text-gray-500">User email address (used for login)</p>
+    </div>
+
+    <!-- Phone -->
+    <div>
+      <%= form.label :phone, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.telephone_field :phone,
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+
+    <!-- Locale -->
+    <div>
+      <%= form.label :locale, class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.select :locale,
+          options_for_select([['English', 'en'], ['Spanish', 'es'], ['French', 'fr'], ['German', 'de']], user.locale || 'en'),
+          {},
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+
+    <!-- Company -->
+    <div class="md:col-span-2">
+      <%= form.label :company_id, "Primary Company", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.collection_select :company_id,
+          Company.order(:name),
+          :id,
+          :name,
+          { include_blank: 'None' },
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <p class="mt-1 text-xs text-gray-500">User's primary/current company context</p>
+    </div>
+
+    <!-- Super Admin -->
+    <div class="md:col-span-2">
+      <div class="flex items-start gap-3">
+        <%= form.check_box :super_admin,
+            class: "mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+        <div class="flex-1">
+          <%= form.label :super_admin, class: "block text-sm font-medium text-gray-700" %>
+          <p class="mt-1 text-xs text-gray-500">
+            Super admins have platform-level access across all companies. Use with caution.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scopes -->
+    <div class="md:col-span-2">
+      <%= form.label :scopes, "User Scopes (comma-separated)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= form.text_field :scopes,
+          placeholder: "read, write, admin",
+          class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+      <p class="mt-1 text-xs text-gray-500">
+        User-level scopes (comma-separated). These are combined with membership-level scopes.
+      </p>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+    <%= link_to "Cancel", admin_user_path(user), class: "px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" %>
+    <%= form.submit "Save Changes", class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" %>
+  </div>
+<% end %>

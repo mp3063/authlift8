@@ -1,0 +1,135 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">OAuth Applications</h1>
+      <p class="mt-2 text-gray-600">Manage all OAuth2 applications in the system</p>
+    </div>
+    <%= link_to new_admin_oauth_application_path, class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" do %>
+      + New OAuth App
+    <% end %>
+  </div>
+
+  <!-- Search & Filters -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <div class="p-6">
+      <%= form_with url: admin_oauth_applications_path, method: :get, class: "flex gap-4 flex-wrap" do |form| %>
+        <div class="flex-1 min-w-64">
+          <%= form.text_field :search,
+              value: params[:search],
+              placeholder: "Search by name or client ID...",
+              class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+        </div>
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2">
+            <%= form.check_box :trusted_only, { checked: params[:trusted_only] == '1', class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" }, '1', '0' %>
+            <span class="text-sm text-gray-700">Trusted Only</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <%= form.check_box :partnerships_only, { checked: params[:partnerships_only] == '1', class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" }, '1', '0' %>
+            <span class="text-sm text-gray-700">Partnerships Enabled</span>
+          </label>
+          <%= form.submit "Search", class: "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" %>
+          <%= link_to "Clear", admin_oauth_applications_path, class: "px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- OAuth Applications Table -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">All Applications (<%= @oauth_applications.count %>)</h2>
+      </div>
+    <% end %>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Flags</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if @oauth_applications.any? %>
+            <% @oauth_applications.each do |app| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= app.name %></div>
+                  <% if app.home.present? %>
+                    <div class="text-xs text-gray-500"><%= app.home %></div>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <code class="px-2 py-1 bg-gray-100 rounded text-xs font-mono"><%= app.uid %></code>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <% if app.owner %>
+                    <% if app.owner_type == 'Company' %>
+                      <%= link_to app.owner.name, admin_company_path(app.owner), class: "text-blue-600 hover:text-blue-900" %>
+                    <% elsif app.owner_type == 'User' %>
+                      <%= link_to app.owner.full_name, admin_user_path(app.owner), class: "text-blue-600 hover:text-blue-900" %>
+                    <% else %>
+                      <%= app.owner_type %>
+                    <% end %>
+                  <% else %>
+                    <span class="text-gray-400">No owner</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if app.confidential %>
+                    <span class="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">Confidential</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Public</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex flex-wrap gap-1">
+                    <% if app.trusted %>
+                      <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Trusted</span>
+                    <% end %>
+                    <% if app.partnerships_allowed %>
+                      <span class="px-2 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full">Partnerships</span>
+                    <% end %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= app.created_at.strftime('%b %d, %Y') %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                  <%= link_to "View", admin_oauth_application_path(app), class: "text-blue-600 hover:text-blue-900" %>
+                  <span class="text-gray-300">|</span>
+                  <%= link_to "Edit", edit_admin_oauth_application_path(app), class: "text-yellow-600 hover:text-yellow-900" %>
+                  <span class="text-gray-300">|</span>
+                  <%= button_to "Delete", admin_oauth_application_path(app),
+                      method: :delete,
+                      form: { data: { turbo_confirm: "Are you sure you want to delete #{app.name}? This action cannot be undone." } },
+                      class: "text-red-600 hover:text-red-900" %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="7" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center">
+                  <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                  </svg>
+                  <p class="text-gray-500 text-sm">No OAuth applications found</p>
+                  <%= link_to "Create first application", new_admin_oauth_application_path, class: "mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

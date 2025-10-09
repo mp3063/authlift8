@@ -1,0 +1,273 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900"><%= @user.full_name %></h1>
+      <p class="mt-2 text-gray-600"><%= @user.email %></p>
+    </div>
+    <div class="flex gap-3">
+      <%= link_to edit_admin_user_path(@user), class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" do %>
+        Edit User
+      <% end %>
+      <%= link_to admin_users_path, class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" do %>
+        Back to Users
+      <% end %>
+    </div>
+  </div>
+
+  <!-- User Details -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-900">User Information</h2>
+    <% end %>
+
+    <div class="p-6">
+      <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">First Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.first_name %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Last Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.last_name %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Email</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.email %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Phone</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.phone || '-' %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Primary Company</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <% if @user.company %>
+              <%= link_to @user.company.name, admin_company_path(@user.company), class: "text-blue-600 hover:text-blue-900" %>
+            <% else %>
+              <span class="text-gray-400">Not set</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Role</dt>
+          <dd class="mt-1">
+            <% if @user.super_admin? %>
+              <span class="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">Super Admin</span>
+            <% else %>
+              <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">User</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Locale</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.locale || 'en' %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Sign In Count</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.sign_in_count || 0 %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Last Sign In</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <%= @user.last_sign_in_at ? time_ago_in_words(@user.last_sign_in_at) + ' ago' : 'Never' %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Current Sign In IP</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.current_sign_in_ip || '-' %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Created At</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.created_at.strftime('%B %d, %Y at %I:%M %p') %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Updated At</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.updated_at.strftime('%B %d, %Y at %I:%M %p') %></dd>
+        </div>
+
+        <% if @user.scopes.present? %>
+          <div class="md:col-span-2">
+            <dt class="text-sm font-medium text-gray-500">User Scopes</dt>
+            <dd class="mt-1">
+              <div class="flex flex-wrap gap-2">
+                <% @user.scopes.split(',').each do |scope| %>
+                  <span class="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded"><%= scope.strip %></span>
+                <% end %>
+              </div>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  <% end %>
+
+  <!-- Company Memberships -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Company Memberships (<%= @memberships.count %>)</h2>
+      </div>
+    <% end %>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if @memberships.any? %>
+            <% @memberships.each do |membership| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= link_to membership.company.name, admin_company_path(membership.company), class: "text-sm font-medium text-blue-600 hover:text-blue-900" %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full">
+                    <%= membership.role.titleize %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if membership.active %>
+                    <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Inactive</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= membership.created_at.strftime('%b %d, %Y') %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">
+                No company memberships
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <!-- OAuth Tokens -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Recent OAuth Tokens (Last 10)</h2>
+      </div>
+    <% end %>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scopes</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if @oauth_tokens.any? %>
+            <% @oauth_tokens.each do |token| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <% if token.application_id %>
+                    <% app = Doorkeeper::Application.find_by(id: token.application_id) %>
+                    <% if app %>
+                      <%= link_to app.name, admin_oauth_application_path(app), class: "text-blue-600 hover:text-blue-900" %>
+                    <% else %>
+                      <span class="text-gray-400">Unknown</span>
+                    <% end %>
+                  <% else %>
+                    <span class="text-gray-400">N/A</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <% if token.scopes.present? %>
+                    <div class="flex flex-wrap gap-1">
+                      <% token.scopes.to_s.split(' ').first(3).each do |scope| %>
+                        <span class="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded"><%= scope %></span>
+                      <% end %>
+                      <% if token.scopes.to_s.split(' ').count > 3 %>
+                        <span class="text-xs text-gray-400">+<%= token.scopes.to_s.split(' ').count - 3 %></span>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <span class="text-gray-400">None</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if token.revoked_at.nil? && (token.expires_in.nil? || token.created_at + token.expires_in > Time.current) %>
+                    <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+                  <% elsif token.revoked_at.present? %>
+                    <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Revoked</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Expired</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= token.created_at.strftime('%b %d, %Y') %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <% if token.expires_in %>
+                    <%= (token.created_at + token.expires_in).strftime('%b %d, %Y') %>
+                  <% else %>
+                    <span class="text-gray-400">Never</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">
+                No OAuth tokens
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <!-- Danger Zone -->
+  <% unless @user == current_user %>
+    <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+      <% card.with_header do %>
+        <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
+      <% end %>
+
+      <div class="p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-medium text-gray-900">Delete User</h3>
+            <p class="mt-1 text-sm text-gray-500">Permanently delete this user account. This action cannot be undone.</p>
+          </div>
+          <%= button_to "Delete User", admin_user_path(@user),
+              method: :delete,
+              form: { data: { turbo_confirm: "Are you sure you want to delete #{@user.full_name}? This action cannot be undone and will remove all associated data." } },
+              class: "px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium" %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

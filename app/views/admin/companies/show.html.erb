@@ -1,0 +1,315 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900"><%= @company.name %></h1>
+      <p class="mt-2 text-gray-600">Company Code: <code class="px-2 py-1 bg-gray-100 rounded text-sm"><%= @company.code %></code></p>
+    </div>
+    <div class="flex gap-3">
+      <%= link_to edit_admin_company_path(@company), class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" do %>
+        Edit Company
+      <% end %>
+      <%= link_to admin_companies_path, class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" do %>
+        Back to Companies
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Company Details -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-900">Company Information</h2>
+    <% end %>
+
+    <div class="p-6">
+      <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Company Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @company.name %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Company Code</dt>
+          <dd class="mt-1">
+            <code class="px-2 py-1 bg-gray-100 rounded text-sm font-mono"><%= @company.code %></code>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Email</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @company.email || '-' %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Phone</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @company.phone || '-' %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Website</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <% if @company.website.present? %>
+              <%= link_to @company.website, @company.website, target: "_blank", class: "text-blue-600 hover:text-blue-900" %>
+            <% else %>
+              -
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Status</dt>
+          <dd class="mt-1">
+            <% if @company.active %>
+              <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+            <% else %>
+              <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Inactive</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">VAT ID</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @company.vat_id || '-' %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Business ID</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @company.business_id || '-' %></dd>
+        </div>
+
+        <div class="md:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Address</dt>
+          <dd class="mt-1 text-sm text-gray-900">
+            <% if @company.address_line1.present? %>
+              <%= @company.address_line1 %><br>
+              <%= @company.address_line2 if @company.address_line2.present? %>
+              <%= "#{@company.city}, #{@company.state} #{@company.postal_code}" if @company.city.present? %><br>
+              <%= @company.country %>
+            <% else %>
+              <span class="text-gray-400">No address provided</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Locale</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @company.locale || 'en' %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Logo Code</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @company.logo_code || '-' %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Created At</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @company.created_at.strftime('%B %d, %Y at %I:%M %p') %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Updated At</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @company.updated_at.strftime('%B %d, %Y at %I:%M %p') %></dd>
+        </div>
+      </dl>
+    </div>
+  <% end %>
+
+  <!-- Company Members -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Company Members (<%= @memberships.count %>)</h2>
+      </div>
+    <% end %>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if @memberships.any? %>
+            <% @memberships.each do |membership| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= link_to membership.user.full_name, admin_user_path(membership.user), class: "text-sm font-medium text-blue-600 hover:text-blue-900" %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= membership.user.email %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full">
+                    <%= membership.role.titleize %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if membership.active %>
+                    <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Inactive</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= membership.created_at.strftime('%b %d, %Y') %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">
+                No members yet
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <!-- OAuth Applications -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">OAuth Applications (<%= @oauth_applications.count %>)</h2>
+      </div>
+    <% end %>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidential</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trusted</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if @oauth_applications.any? %>
+            <% @oauth_applications.each do |app| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= link_to app.name, admin_oauth_application_path(app), class: "text-sm font-medium text-blue-600 hover:text-blue-900" %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <code class="px-2 py-1 bg-gray-100 rounded text-xs font-mono"><%= app.uid %></code>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if app.confidential %>
+                    <span class="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">Yes</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">No</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if app.trusted %>
+                    <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Yes</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">No</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= app.created_at.strftime('%b %d, %Y') %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <%= link_to "View", admin_oauth_application_path(app), class: "text-blue-600 hover:text-blue-900" %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">
+                No OAuth applications
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <!-- Partnerships -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-900">Partnerships</h2>
+    <% end %>
+
+    <div class="p-6 space-y-6">
+      <!-- As Supplier/Provider -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-900 mb-3">As Supplier/Provider (<%= @owned_partnerships.count %>)</h3>
+        <% if @owned_partnerships.any? %>
+          <div class="space-y-2">
+            <% @owned_partnerships.each do |partnership| %>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <%= link_to partnership.partner_client.name, admin_company_path(partnership.partner_client), class: "text-sm font-medium text-blue-600 hover:text-blue-900" %>
+                  <p class="text-xs text-gray-500">Since <%= partnership.created_at.strftime('%b %d, %Y') %></p>
+                </div>
+                <% if partnership.active %>
+                  <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+                <% else %>
+                  <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Inactive</span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500">No client partnerships</p>
+        <% end %>
+      </div>
+
+      <!-- As Client/Buyer -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-900 mb-3">As Client/Buyer (<%= @client_partnerships.count %>)</h3>
+        <% if @client_partnerships.any? %>
+          <div class="space-y-2">
+            <% @client_partnerships.each do |partnership| %>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <%= link_to partnership.partner_owner.name, admin_company_path(partnership.partner_owner), class: "text-sm font-medium text-blue-600 hover:text-blue-900" %>
+                  <p class="text-xs text-gray-500">Since <%= partnership.created_at.strftime('%b %d, %Y') %></p>
+                </div>
+                <% if partnership.active %>
+                  <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+                <% else %>
+                  <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Inactive</span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500">No supplier partnerships</p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Danger Zone -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
+    <% end %>
+
+    <div class="p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-medium text-gray-900">Delete Company</h3>
+          <p class="mt-1 text-sm text-gray-500">Permanently delete this company. This action cannot be undone.</p>
+        </div>
+        <%= button_to "Delete Company", admin_company_path(@company),
+            method: :delete,
+            form: { data: { turbo_confirm: "Are you sure you want to delete #{@company.name}? This action cannot be undone and will remove all associated data." } },
+            class: "px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium" %>
+      </div>
+    </div>
+  <% end %>
+</div>

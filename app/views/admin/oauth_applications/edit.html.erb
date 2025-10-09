@@ -1,0 +1,23 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Edit OAuth Application</h1>
+      <p class="mt-2 text-gray-600">Update OAuth2 application settings</p>
+    </div>
+    <%= link_to admin_oauth_application_path(@oauth_application), class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" do %>
+      Cancel
+    <% end %>
+  </div>
+
+  <!-- Edit Form -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-900">Application Information</h2>
+    <% end %>
+
+    <div class="p-6">
+      <%= render 'form', oauth_application: @oauth_application %>
+    </div>
+  <% end %>
+</div>
