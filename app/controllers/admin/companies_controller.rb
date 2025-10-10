@@ -62,7 +62,7 @@ module Admin
     def update
       if @company.update(company_params)
         flash[:notice] = "Company was successfully updated."
-        redirect_to admin_company_path(@company)
+        redirect_to admin_company_path(@company), status: :see_other
       else
         flash.now[:alert] = "Failed to update company."
         render :edit, status: :unprocessable_entity

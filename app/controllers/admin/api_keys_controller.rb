@@ -73,7 +73,7 @@ module Admin
 
       if @api_key.update(api_key_params)
         flash[:notice] = "API Key was successfully updated."
-        redirect_to admin_api_key_path(@api_key)
+        redirect_to admin_api_key_path(@api_key), status: :see_other
       else
         @companies = filter_companies_by_access(Company.order(name: :asc))
         flash.now[:alert] = "Failed to update API key."

@@ -53,7 +53,8 @@ module Admin
     def update
       if @partnership.update(partnership_params)
         redirect_to admin_company_partnerships_path(@company),
-                    notice: "Partnership was successfully updated."
+                    notice: "Partnership was successfully updated.",
+                    status: :see_other
       else
         render :edit, status: :unprocessable_entity
       end

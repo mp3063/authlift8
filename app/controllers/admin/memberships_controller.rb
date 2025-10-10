@@ -45,7 +45,8 @@ module Admin
     def update
       if @membership.update(membership_params)
         redirect_to admin_company_memberships_path(@company),
-                    notice: "Membership was successfully updated."
+                    notice: "Membership was successfully updated.",
+                    status: :see_other
       else
         render :edit, status: :unprocessable_entity
       end

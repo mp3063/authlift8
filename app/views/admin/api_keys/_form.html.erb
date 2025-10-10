@@ -1,4 +1,4 @@
-<%= form_with model: [:admin, api_key], class: "space-y-6" do |form| %>
+<%= form_with model: [:admin, api_key], class: "space-y-6", data: { turbo: false } do |form| %>
   <!-- Display Errors -->
   <% if api_key.errors.any? %>
     <div class="p-4 bg-red-50 border border-red-200 rounded-lg">

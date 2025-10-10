@@ -1,7 +1,8 @@
 <%= form_with model: oauth_application,
               url: oauth_application.persisted? ? admin_oauth_application_path(oauth_application) : admin_oauth_applications_path,
               scope: :doorkeeper_application,
-              class: "space-y-6" do |form| %>
+              class: "space-y-6",
+              data: { turbo: false } do |form| %>
   <!-- Display Errors -->
   <% if oauth_application.errors.any? %>
     <div class="p-4 bg-red-50 border border-red-200 rounded-lg">

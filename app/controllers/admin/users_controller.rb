@@ -37,12 +37,26 @@ module Admin
 
     # PATCH/PUT /admin/users/:id
     def update
-      if @user.update(user_params)
-        flash[:notice] = "User was successfully updated."
-        redirect_to admin_user_path(@user)
-      else
-        flash.now[:alert] = "Failed to update user."
-        render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        if @user.update(user_params)
+          format.html do
+            flash[:notice] = "User was successfully updated."
+            redirect_to admin_user_path(@user), status: :see_other
+          end
+          format.turbo_stream do
+            flash[:notice] = "User was successfully updated."
+            redirect_to admin_user_path(@user), status: :see_other
+          end
+        else
+          format.html do
+            flash.now[:alert] = "Failed to update user."
+            render :edit, status: :unprocessable_entity
+          end
+          format.turbo_stream do
+            flash.now[:alert] = "Failed to update user."
+            render :edit, status: :unprocessable_entity
+          end
+        end
       end
     end
 

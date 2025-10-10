@@ -60,7 +60,7 @@ module Admin
     def update
       if @oauth_application.update(oauth_application_params)
         flash[:notice] = "OAuth application was successfully updated."
-        redirect_to admin_oauth_application_path(@oauth_application)
+        redirect_to admin_oauth_application_path(@oauth_application), status: :see_other
       else
         flash.now[:alert] = "Failed to update OAuth application."
         render :edit, status: :unprocessable_entity
