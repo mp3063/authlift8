@@ -2,12 +2,16 @@
 module Admin
   class OauthApplicationsController < Admin::BaseController
     before_action :set_oauth_application, only: [ :show, :edit, :update, :destroy ]
+    before_action :authorize_oauth_application_access!, only: [ :show, :edit, :update, :destroy ]
 
     # GET /admin/oauth_applications
     def index
       @oauth_applications = Doorkeeper::Application.includes(:owner)
                                                    .order(name: :asc)
                                                    .limit(100)  # Simple limit for now, add pagination gem later if needed
+
+      # SECURITY: Filter OAuth applications based on user permissions
+      @oauth_applications = filter_oauth_applications_by_access(@oauth_applications)
 
       # Optional filters
       if params[:search].present?
@@ -92,6 +96,59 @@ module Admin
     rescue ActiveRecord::RecordNotFound
       flash[:alert] = "OAuth application not found."
       redirect_to admin_oauth_applications_path
+    end
+
+    # SECURITY: Check if current user can access/manage this OAuth application
+    def authorize_oauth_application_access!
+      # Super admins have platform-level access to all applications
+      return true if current_user.super_admin?
+
+      # Check if the application is owned by a company the user is admin/owner of
+      if @oauth_application.owner_type == "Company"
+        owner_company = @oauth_application.owner
+        unless current_user.admin_for?(owner_company)
+          # SECURITY LOGGING: Log unauthorized access attempt
+          Rails.logger.warn(
+            "SECURITY: Unauthorized OAuth application access attempt - " \
+            "User ID: #{current_user.id}, Email: #{current_user.email}, " \
+            "Application ID: #{@oauth_application.id}, Application Name: #{@oauth_application.name}, " \
+            "Owner Company ID: #{owner_company&.id}, " \
+            "Action: #{action_name}, Controller: #{controller_name}"
+          )
+
+          flash[:alert] = "Access denied. You can only manage your own company's OAuth applications."
+          redirect_to root_path
+          return false
+        end
+      else
+        # If owner is not a Company (e.g., User or nil), only super admins can access
+        Rails.logger.warn(
+          "SECURITY: Non-company OAuth application access attempt - " \
+          "User ID: #{current_user.id}, Email: #{current_user.email}, " \
+          "Application ID: #{@oauth_application.id}, Owner Type: #{@oauth_application.owner_type}, " \
+          "Action: #{action_name}"
+        )
+
+        flash[:alert] = "Access denied. This OAuth application is not owned by a company."
+        redirect_to root_path
+        return false
+      end
+
+      true
+    end
+
+    # SECURITY: Filter OAuth applications based on user permissions
+    def filter_oauth_applications_by_access(scope)
+      return scope if current_user.super_admin?
+
+      # Get IDs of companies where user is owner or admin
+      company_ids = current_user.memberships
+                                .active
+                                .where(role: %w[owner admin])
+                                .pluck(:company_id)
+
+      # Filter to only show applications owned by companies the user is admin/owner of
+      scope.where(owner_type: "Company", owner_id: company_ids)
     end
 
     def oauth_application_params

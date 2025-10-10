@@ -1,0 +1,132 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Partnerships</h1>
+      <p class="mt-2 text-gray-600">Manage B2B relationships for <%= @company.name %></p>
+    </div>
+    <%= link_to "New Partnership", new_admin_company_partnership_path(@company), class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" %>
+  </div>
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm">
+    <%= link_to "Companies", admin_companies_path, class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <%= link_to @company.name, admin_company_path(@company), class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <span class="text-gray-900">Partnerships</span>
+  </nav>
+
+  <!-- Partnerships as Supplier/Owner -->
+  <% if @owned_partnerships.any? %>
+    <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+      <% card.with_header do %>
+        <h2 class="text-lg font-semibold text-gray-900">As Supplier</h2>
+      <% end %>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client Company</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @owned_partnerships.each do |partnership| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= partnership.partner_client.name %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <code class="px-2 py-1 bg-gray-100 rounded text-xs"><%= partnership.partner_client.code %></code>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if partnership.active %>
+                    <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Inactive</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= time_ago_in_words(partnership.created_at) %> ago
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                  <%= link_to "Edit", edit_admin_company_partnership_path(@company, partnership), class: "text-blue-600 hover:text-blue-900" %>
+                  <%= button_to "Delete", admin_company_partnership_path(@company, partnership), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "text-red-600 hover:text-red-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Partnerships as Client -->
+  <% if @client_partnerships.any? %>
+    <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+      <% card.with_header do %>
+        <h2 class="text-lg font-semibold text-gray-900">As Client</h2>
+      <% end %>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier Company</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @client_partnerships.each do |partnership| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= partnership.partner_owner.name %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <code class="px-2 py-1 bg-gray-100 rounded text-xs"><%= partnership.partner_owner.code %></code>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if partnership.active %>
+                    <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Inactive</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= time_ago_in_words(partnership.created_at) %> ago
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                  <%= link_to "View", admin_company_partnership_path(@company, partnership), class: "text-blue-600 hover:text-blue-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- No Partnerships -->
+  <% if @owned_partnerships.empty? && @client_partnerships.empty? %>
+    <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No partnerships</h3>
+        <p class="mt-1 text-sm text-gray-500">Get started by creating a new B2B partnership.</p>
+        <div class="mt-6">
+          <%= link_to "New Partnership", new_admin_company_partnership_path(@company), class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -2,12 +2,16 @@
 module Admin
   class CompaniesController < Admin::BaseController
     before_action :set_company, only: [ :show, :edit, :update, :destroy ]
+    before_action -> { authorize_company_access!(@company) }, only: [ :show, :edit, :update, :destroy ]
 
     # GET /admin/companies
     def index
       @companies = Company.includes(:users, :memberships)
                           .order(name: :asc)
                           .limit(100)  # Simple limit for now, add pagination gem later if needed
+
+      # SECURITY: Filter companies based on user permissions
+      @companies = filter_companies_by_access(@companies)
 
       # Optional filters
       if params[:search].present?
