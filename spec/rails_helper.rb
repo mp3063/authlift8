@@ -84,4 +84,8 @@ RSpec.configure do |config|
   config.include Rails::Controller::Testing::TestProcess, type: :request
   config.include Rails::Controller::Testing::TemplateAssertions, type: :request
   config.include Rails::Controller::Testing::Integration, type: :request
+
+  # Include ActiveSupport time helpers (travel, travel_to, travel_back)
+  # Used for testing time-based features like cache expiration and rate limiting
+  config.include ActiveSupport::Testing::TimeHelpers
 end
