@@ -1,6 +1,6 @@
 # app/models/application_domain.rb
 class ApplicationDomain < ApplicationRecord
-  belongs_to :oauth_application, class_name: 'Doorkeeper::Application'
+  belongs_to :oauth_application, class_name: "Doorkeeper::Application"
   belongs_to :company
 
   # Validations

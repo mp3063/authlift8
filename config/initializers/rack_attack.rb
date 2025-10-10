@@ -36,20 +36,20 @@ class Rack::Attack
   # - Production/Staging: Always enabled (critical security protection)
   Rack::Attack.enabled = if Rails.env.test?
                            false
-                         elsif Rails.env.development?
-                           ENV.fetch('RACK_ATTACK_ENABLED', 'false') == 'true'
-                         else
+  elsif Rails.env.development?
+                           ENV.fetch("RACK_ATTACK_ENABLED", "false") == "true"
+  else
                            # Production/Staging: Always enabled
                            true
-                         end
+  end
 
   # Configure Redis for distributed rate limiting across multiple servers
   # In production, this ensures rate limits work correctly with multiple app instances
   # Use memory store for development/test environments
   if Rails.env.production? || Rails.env.staging?
     Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(
-      url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/1'),
-      namespace: 'rack_attack'
+      url: ENV.fetch("REDIS_URL", "redis://localhost:6379/1"),
+      namespace: "rack_attack"
     )
   else
     # Use memory store for development (no Redis required)
@@ -61,20 +61,20 @@ class Rack::Attack
   # =============================================================================
 
   # Always allow requests from localhost in development
-  safelist('allow-localhost') do |req|
-    Rails.env.development? && ['127.0.0.1', '::1'].include?(req.ip)
+  safelist("allow-localhost") do |req|
+    Rails.env.development? && [ "127.0.0.1", "::1" ].include?(req.ip)
   end
 
   # Allow monitoring/health check endpoints to bypass rate limits
-  safelist('allow-health-checks') do |req|
-    req.path == '/health' || req.path == '/up'
+  safelist("allow-health-checks") do |req|
+    req.path == "/health" || req.path == "/up"
   end
 
   # Whitelist specific IPs (internal services, trusted partners)
   # Example: WHITELISTED_IPS=10.0.1.5,192.168.1.100
   # Security Note: Use sparingly - whitelisted IPs bypass ALL rate limits
-  safelist('whitelist-internal-ips') do |req|
-    whitelisted_ips = ENV.fetch('WHITELISTED_IPS', '').split(',').map(&:strip)
+  safelist("whitelist-internal-ips") do |req|
+    whitelisted_ips = ENV.fetch("WHITELISTED_IPS", "").split(",").map(&:strip)
     whitelisted_ips.include?(req.ip) if whitelisted_ips.any?
   end
 
@@ -85,18 +85,18 @@ class Rack::Attack
   # Block requests from known bad IPs
   # Add malicious IPs to BLOCKED_IPS environment variable (comma-separated)
   # Example: BLOCKED_IPS=192.168.1.1,10.0.0.1
-  blocklist('block-malicious-ips') do |req|
-    blocked_ips = ENV.fetch('BLOCKED_IPS', '').split(',').map(&:strip)
+  blocklist("block-malicious-ips") do |req|
+    blocked_ips = ENV.fetch("BLOCKED_IPS", "").split(",").map(&:strip)
     blocked_ips.include?(req.ip) if blocked_ips.any?
   end
 
   # Block requests with suspicious user agents (common bots/scanners)
   # Security Note: Adjust list based on your legitimate traffic patterns
-  blocklist('block-bad-user-agents') do |req|
+  blocklist("block-bad-user-agents") do |req|
     suspicious_agents = [
-      'masscan', 'nmap', 'nikto', 'sqlmap',
-      'python-requests', 'go-http-client', 'scrapy',
-      'zgrab', 'shodan', 'censys'
+      "masscan", "nmap", "nikto", "sqlmap",
+      "python-requests", "go-http-client", "scrapy",
+      "zgrab", "shodan", "censys"
     ]
     user_agent = req.user_agent.to_s.downcase
     suspicious_agents.any? { |agent| user_agent.include?(agent) }
@@ -105,7 +105,7 @@ class Rack::Attack
   # Exponential backoff for repeat offenders (IP-based)
   # After hitting rate limits multiple times, increase the penalty period
   # This prevents persistent attackers from continuously hammering the server
-  blocklist('repeat-offender-exponential-backoff') do |req|
+  blocklist("repeat-offender-exponential-backoff") do |req|
     # Track how many times this IP has been throttled in the last hour
     violations_key = "violations:#{req.ip}"
     violations = Rack::Attack.cache.read(violations_key).to_i
@@ -114,7 +114,7 @@ class Rack::Attack
     # This indicates persistent abuse despite rate limiting
     if violations > 10
       # Extend the block period exponentially (up to 1 hour)
-      block_duration = [300 * (2**(violations - 10)), 3600].min
+      block_duration = [ 300 * (2**(violations - 10)), 3600 ].min
       Rack::Attack.cache.store.write(violations_key, violations + 1, expires_in: 1.hour.to_i)
       true
     end
@@ -143,9 +143,9 @@ class Rack::Attack
   # Limit: 5 failed attempts per 20 minutes per email
   # Security: Prevents credential stuffing and password guessing
   # Note: Only tracks FAILED attempts, successful logins don't count
-  throttle('failed-logins/email', limit: 5, period: 20.minutes) do |req|
-    if req.path == '/users/sign_in' && req.post?
-      email = req.params['email'] || req.params.dig('user', 'email')
+  throttle("failed-logins/email", limit: 5, period: 20.minutes) do |req|
+    if req.path == "/users/sign_in" && req.post?
+      email = req.params["email"] || req.params.dig("user", "email")
       # Use a unique key that distinguishes failed vs successful attempts
       # This will be cleared on successful login (see track block below)
       "failed-login:#{email.to_s.downcase}" if email.present?
@@ -155,8 +155,8 @@ class Rack::Attack
   # Track failed login attempts by IP (prevents distributed attacks)
   # Limit: 10 failed attempts per 20 minutes per IP
   # Security: Prevents attackers using multiple email addresses from same IP
-  throttle('failed-logins/ip', limit: 10, period: 20.minutes) do |req|
-    if req.path == '/users/sign_in' && req.post?
+  throttle("failed-logins/ip", limit: 10, period: 20.minutes) do |req|
+    if req.path == "/users/sign_in" && req.post?
       "failed-login:#{req.ip}"
     end
   end
@@ -164,8 +164,8 @@ class Rack::Attack
   # Track failed login attempts by IP + User-Agent combination
   # Limit: 15 failed attempts per hour
   # Security: Detects sophisticated attackers rotating IPs but using same tools
-  throttle('failed-logins/ip-ua', limit: 15, period: 1.hour) do |req|
-    if req.path == '/users/sign_in' && req.post?
+  throttle("failed-logins/ip-ua", limit: 15, period: 1.hour) do |req|
+    if req.path == "/users/sign_in" && req.post?
       ua_fingerprint = Digest::SHA256.hexdigest(req.user_agent.to_s)[0..8]
       "failed-login:#{req.ip}:#{ua_fingerprint}"
     end
@@ -180,8 +180,8 @@ class Rack::Attack
   # Limit: 20 requests per minute per IP
   # Security: Prevents brute force on authorization codes and client credentials
   # Stricter than previous config (was 20/5min, now 20/1min)
-  throttle('oauth/token/ip', limit: 20, period: 1.minute) do |req|
-    if req.path == '/oauth/token' && req.post?
+  throttle("oauth/token/ip", limit: 20, period: 1.minute) do |req|
+    if req.path == "/oauth/token" && req.post?
       req.ip
     end
   end
@@ -189,8 +189,8 @@ class Rack::Attack
   # OAuth2 Authorization Endpoint
   # Limit: 30 requests per 5 minutes per IP
   # Security: Prevents spam authorization requests
-  throttle('oauth/authorize/ip', limit: 30, period: 5.minutes) do |req|
-    if req.path == '/oauth/authorize' && (req.get? || req.post?)
+  throttle("oauth/authorize/ip", limit: 30, period: 5.minutes) do |req|
+    if req.path == "/oauth/authorize" && (req.get? || req.post?)
       req.ip
     end
   end
@@ -198,8 +198,8 @@ class Rack::Attack
   # OAuth2 Token Revocation Endpoint
   # Limit: 10 requests per minute per IP
   # Security: Prevents abuse of revocation endpoint
-  throttle('oauth/revoke/ip', limit: 10, period: 1.minute) do |req|
-    if req.path == '/oauth/revoke' && req.post?
+  throttle("oauth/revoke/ip", limit: 10, period: 1.minute) do |req|
+    if req.path == "/oauth/revoke" && req.post?
       req.ip
     end
   end
@@ -208,8 +208,8 @@ class Rack::Attack
   # Limit: 5 requests per minute per IP
   # Security: Rate limits ALL login attempts (successful + failed)
   # Note: This works in conjunction with failed-login throttles above
-  throttle('login/ip', limit: 5, period: 1.minute) do |req|
-    if req.path == '/users/sign_in' && req.post?
+  throttle("login/ip", limit: 5, period: 1.minute) do |req|
+    if req.path == "/users/sign_in" && req.post?
       req.ip
     end
   end
@@ -217,9 +217,9 @@ class Rack::Attack
   # Password Reset Request Endpoint
   # Limit: 3 requests per hour per email
   # Security: Prevents email bombing and enumeration attacks
-  throttle('password-reset/email', limit: 3, period: 1.hour) do |req|
-    if req.path == '/users/password' && req.post?
-      email = req.params['email'] || req.params.dig('user', 'email')
+  throttle("password-reset/email", limit: 3, period: 1.hour) do |req|
+    if req.path == "/users/password" && req.post?
+      email = req.params["email"] || req.params.dig("user", "email")
       "password-reset:#{email.to_s.downcase}" if email.present?
     end
   end
@@ -227,8 +227,8 @@ class Rack::Attack
   # Password Reset Request by IP (additional layer)
   # Limit: 10 requests per hour per IP
   # Security: Prevents mass password reset attacks from single IP
-  throttle('password-reset/ip', limit: 10, period: 1.hour) do |req|
-    if req.path == '/users/password' && req.post?
+  throttle("password-reset/ip", limit: 10, period: 1.hour) do |req|
+    if req.path == "/users/password" && req.post?
       req.ip
     end
   end
@@ -236,8 +236,8 @@ class Rack::Attack
   # Registration Endpoint
   # Limit: 5 registrations per hour per IP
   # Security: Prevents automated account creation and spam
-  throttle('registration/ip', limit: 5, period: 1.hour) do |req|
-    if req.path == '/users' && req.post?
+  throttle("registration/ip", limit: 5, period: 1.hour) do |req|
+    if req.path == "/users" && req.post?
       req.ip
     end
   end
@@ -245,9 +245,9 @@ class Rack::Attack
   # Registration by email (prevents re-registration attempts)
   # Limit: 3 attempts per day per email
   # Security: Prevents email enumeration through registration
-  throttle('registration/email', limit: 3, period: 24.hours) do |req|
-    if req.path == '/users' && req.post?
-      email = req.params['email'] || req.params.dig('user', 'email')
+  throttle("registration/email", limit: 3, period: 24.hours) do |req|
+    if req.path == "/users" && req.post?
+      email = req.params["email"] || req.params.dig("user", "email")
       "registration:#{email.to_s.downcase}" if email.present?
     end
   end
@@ -260,9 +260,9 @@ class Rack::Attack
   # Company Switching (Integration Endpoint)
   # Limit: 10 switches per minute per user
   # Security: Prevents rapid company context switching abuse
-  throttle('switch-company/user', limit: 10, period: 1.minute) do |req|
-    if req.path == '/auth/switch_company' && req.post?
-      user = req.env['warden']&.user
+  throttle("switch-company/user", limit: 10, period: 1.minute) do |req|
+    if req.path == "/auth/switch_company" && req.post?
+      user = req.env["warden"]&.user
       "switch-company:user:#{user.id}" if user
     end
   end
@@ -270,8 +270,8 @@ class Rack::Attack
   # Company Switching by IP (unauthenticated protection)
   # Limit: 20 switches per minute per IP
   # Security: Protects endpoint even when JWT validation might fail
-  throttle('switch-company/ip', limit: 20, period: 1.minute) do |req|
-    if req.path == '/auth/switch_company' && req.post?
+  throttle("switch-company/ip", limit: 20, period: 1.minute) do |req|
+    if req.path == "/auth/switch_company" && req.post?
       req.ip
     end
   end
@@ -279,9 +279,9 @@ class Rack::Attack
   # Language Change Operations
   # Limit: 15 changes per minute per user
   # Security: Prevents abuse of profile update endpoints
-  throttle('change-language/user', limit: 15, period: 1.minute) do |req|
-    if req.path == '/auth/change_language' && req.post?
-      user = req.env['warden']&.user
+  throttle("change-language/user", limit: 15, period: 1.minute) do |req|
+    if req.path == "/auth/change_language" && req.post?
+      user = req.env["warden"]&.user
       "change-language:user:#{user.id}" if user
     end
   end
@@ -289,8 +289,8 @@ class Rack::Attack
   # Logout Endpoint (Remote logout via integration)
   # Limit: 20 logouts per minute per IP
   # Security: Prevents DoS via logout endpoint (destroys tokens)
-  throttle('logout/ip', limit: 20, period: 1.minute) do |req|
-    if req.path == '/auth/logout' && (req.delete? || req.get?)
+  throttle("logout/ip", limit: 20, period: 1.minute) do |req|
+    if req.path == "/auth/logout" && (req.delete? || req.get?)
       req.ip
     end
   end
@@ -298,9 +298,9 @@ class Rack::Attack
   # OAuth Token Generation per User
   # Limit: 30 tokens per hour per user
   # Security: Prevents token flooding from compromised accounts
-  throttle('oauth-tokens/user', limit: 30, period: 1.hour) do |req|
-    if req.path == '/oauth/token' && req.post?
-      user = req.env['warden']&.user
+  throttle("oauth-tokens/user", limit: 30, period: 1.hour) do |req|
+    if req.path == "/oauth/token" && req.post?
+      user = req.env["warden"]&.user
       "oauth-tokens:user:#{user.id}" if user
     end
   end
@@ -314,16 +314,16 @@ class Rack::Attack
   # Limit: 300 requests per minute per IP (all endpoints)
   # Security: Prevents general DDoS and resource exhaustion
   # Note: This is more aggressive than previous config (was 300/5min, now 300/1min)
-  throttle('global/ip', limit: 300, period: 1.minute) do |req|
+  throttle("global/ip", limit: 300, period: 1.minute) do |req|
     # Don't throttle static assets or health checks
-    req.ip unless req.path.start_with?('/assets', '/health', '/up')
+    req.ip unless req.path.start_with?("/assets", "/health", "/up")
   end
 
   # API Endpoints (read-only operations)
   # Limit: 100 requests per minute per IP
   # Security: Protects API from scraping and abuse
-  throttle('api/ip', limit: 100, period: 1.minute) do |req|
-    if req.path.start_with?('/api')
+  throttle("api/ip", limit: 100, period: 1.minute) do |req|
+    if req.path.start_with?("/api")
       req.ip
     end
   end
@@ -331,9 +331,9 @@ class Rack::Attack
   # API per authenticated user (more generous for legitimate users)
   # Limit: 200 requests per minute per user
   # Security: Allows higher limits for authenticated users
-  throttle('api/user', limit: 200, period: 1.minute) do |req|
-    if req.path.start_with?('/api') && req.env['warden']&.user
-      user = req.env['warden'].user
+  throttle("api/user", limit: 200, period: 1.minute) do |req|
+    if req.path.start_with?("/api") && req.env["warden"]&.user
+      user = req.env["warden"].user
       "api:user:#{user.id}"
     end
   end
@@ -345,37 +345,37 @@ class Rack::Attack
   # Customize the response when a request is throttled
   # Returns 429 (Too Many Requests) with standard rate limit headers
   self.throttled_responder = lambda do |request|
-    match_data = request.env['rack.attack.match_data']
+    match_data = request.env["rack.attack.match_data"]
     now = match_data[:epoch_time]
     retry_after = match_data[:period] - (now % match_data[:period])
 
     headers = {
-      'Content-Type' => 'application/json',
-      'X-RateLimit-Limit' => match_data[:limit].to_s,
-      'X-RateLimit-Remaining' => '0',
-      'X-RateLimit-Reset' => (now + retry_after).to_s,
-      'Retry-After' => retry_after.to_s
+      "Content-Type" => "application/json",
+      "X-RateLimit-Limit" => match_data[:limit].to_s,
+      "X-RateLimit-Remaining" => "0",
+      "X-RateLimit-Reset" => (now + retry_after).to_s,
+      "Retry-After" => retry_after.to_s
     }
 
     # Provide user-friendly error message
     # Security Note: Don't reveal specific rate limit details to prevent enumeration
     body = {
-      error: 'rate_limit_exceeded',
-      message: 'Too many requests. Please try again later.',
+      error: "rate_limit_exceeded",
+      message: "Too many requests. Please try again later.",
       retry_after_seconds: retry_after
     }
 
-    [429, headers, [body.to_json]]
+    [ 429, headers, [ body.to_json ] ]
   end
 
   # Customize the response when a request is blocked
   # Returns 403 (Forbidden) for permanently blocked requests
   self.blocklisted_responder = lambda do |_env|
     body = {
-      error: 'forbidden',
-      message: 'Access denied. Your IP has been blocked due to suspicious activity.'
+      error: "forbidden",
+      message: "Access denied. Your IP has been blocked due to suspicious activity."
     }
-    [403, { 'Content-Type' => 'application/json' }, [body.to_json]]
+    [ 403, { "Content-Type" => "application/json" }, [ body.to_json ] ]
   end
 
   # =============================================================================
@@ -384,13 +384,13 @@ class Rack::Attack
 
   # Track requests for monitoring and analytics
   # Useful for identifying attack patterns and adjusting rate limits
-  ActiveSupport::Notifications.subscribe('rack.attack') do |name, start, finish, request_id, payload|
+  ActiveSupport::Notifications.subscribe("rack.attack") do |name, start, finish, request_id, payload|
     req = payload[:request]
 
     # Log all throttled and blocked requests with detailed information
-    if [:throttle, :blocklist].include?(req.env['rack.attack.match_type'])
+    if [ :throttle, :blocklist ].include?(req.env["rack.attack.match_type"])
       # Extract email for authentication-related violations (for security logging)
-      email = req.params['email'] || req.params.dig('user', 'email')
+      email = req.params["email"] || req.params.dig("user", "email")
 
       # Security Event Logging - Critical for security monitoring and forensics
       Rails.logger.warn(
@@ -430,9 +430,9 @@ class Rack::Attack
 
   # Increment failed login counter after each failed authentication
   # This is called by the track block when a login fails
-  ActiveSupport::Notifications.subscribe('warden.authentication:failure') do |name, start, finish, request_id, payload|
-    req = payload[:env]['rack.input']
-    email = payload.dig(:options, :email) || payload.dig(:params, 'email') || payload.dig(:params, 'user', 'email')
+  ActiveSupport::Notifications.subscribe("warden.authentication:failure") do |name, start, finish, request_id, payload|
+    req = payload[:env]["rack.input"]
+    email = payload.dig(:options, :email) || payload.dig(:params, "email") || payload.dig(:params, "user", "email")
 
     if email.present?
       # Increment failed login counter for this email
@@ -453,7 +453,7 @@ class Rack::Attack
 
   # Clear failed login counter on successful authentication
   # This ensures legitimate users aren't penalized after a successful login
-  ActiveSupport::Notifications.subscribe('warden.authentication:success') do |name, start, finish, request_id, payload|
+  ActiveSupport::Notifications.subscribe("warden.authentication:success") do |name, start, finish, request_id, payload|
     user = payload[:user]
     if user && user.email.present?
       # Clear all failed login counters for this email

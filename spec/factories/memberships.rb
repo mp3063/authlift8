@@ -16,7 +16,7 @@ FactoryBot.define do
     end
 
     trait :with_scopes do
-      scopes { ['products:read', 'products:write'] }
+      scopes { [ 'products:read', 'products:write' ] }
     end
   end
 end

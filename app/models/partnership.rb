@@ -1,10 +1,10 @@
 # app/models/partnership.rb
 class Partnership < ApplicationRecord
   # Owner = Supplier/Service Provider
-  belongs_to :partner_owner, class_name: 'Company'
+  belongs_to :partner_owner, class_name: "Company"
 
   # Client = Customer/Buyer
-  belongs_to :partner_client, class_name: 'Company'
+  belongs_to :partner_client, class_name: "Company"
 
   # Partnership apps
   has_many :partnership_apps, dependent: :destroy

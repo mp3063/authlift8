@@ -20,7 +20,7 @@ class CreatePartnerships < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :partnerships, [:partner_owner_id, :partner_client_id],
+    add_index :partnerships, [ :partner_owner_id, :partner_client_id ],
               unique: true, name: 'index_partnerships_unique'
   end
 end

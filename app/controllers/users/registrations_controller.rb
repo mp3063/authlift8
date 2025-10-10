@@ -1,9 +1,9 @@
 # app/controllers/users/registrations_controller.rb
 class Users::RegistrationsController < Devise::RegistrationsController
-  skip_before_action :require_no_authentication, only: [:new]
-  before_action :redirect_if_authenticated, only: [:new]
-  before_action :configure_sign_up_params, only: [:create]
-  before_action :configure_account_update_params, only: [:update]
+  skip_before_action :require_no_authentication, only: [ :new ]
+  before_action :redirect_if_authenticated, only: [ :new ]
+  before_action :configure_sign_up_params, only: [ :create ]
+  before_action :configure_account_update_params, only: [ :update ]
 
   # GET /users/sign_up
   # def new
@@ -107,12 +107,12 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # Permit additional parameters for sign up (first_name, last_name)
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:first_name, :last_name, :phone, :locale])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [ :first_name, :last_name, :phone, :locale ])
   end
 
   # Permit additional parameters for account update
   def configure_account_update_params
-    devise_parameter_sanitizer.permit(:account_update, keys: [:first_name, :last_name, :phone, :locale])
+    devise_parameter_sanitizer.permit(:account_update, keys: [ :first_name, :last_name, :phone, :locale ])
   end
 
   private
@@ -134,7 +134,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     Company.create(
       name: company_name,
       email: user.email,
-      locale: user.locale || 'en',
+      locale: user.locale || "en",
       active: true
     )
   end
@@ -144,7 +144,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     Membership.create(
       user: user,
       company: company,
-      role: 'owner',
+      role: "owner",
       scopes: [],
       active: true
     )

@@ -30,7 +30,7 @@ SecureHeaders::Configuration.default do |config|
   #   - ALLOW-FROM uri: Page can only be displayed in a frame on the specified origin
   #
   # Use SAMEORIGIN if you need to embed your own pages in iframes
-  config.x_frame_options = 'DENY'
+  config.x_frame_options = "DENY"
 
   # =============================================================================
   # X-Content-Type-Options: nosniff
@@ -39,7 +39,7 @@ SecureHeaders::Configuration.default do |config|
   # Protection against: Drive-by download attacks and MIME confusion attacks
   #
   # This forces browsers to respect the Content-Type header declared by the server
-  config.x_content_type_options = 'nosniff'
+  config.x_content_type_options = "nosniff"
 
   # =============================================================================
   # X-XSS-Protection: 1; mode=block
@@ -53,7 +53,7 @@ SecureHeaders::Configuration.default do |config|
   #   - 1; mode=block: Enable XSS filtering and block the page entirely
   #
   # Note: Modern browsers rely more on CSP, but this provides defense in depth
-  config.x_xss_protection = '1; mode=block'
+  config.x_xss_protection = "1; mode=block"
 
   # =============================================================================
   # X-Download-Options: noopen
@@ -62,7 +62,7 @@ SecureHeaders::Configuration.default do |config|
   # Protection against: Execution of malicious HTML/JS files in trusted context
   #
   # IE-specific header that prevents opening files directly in the browser
-  config.x_download_options = 'noopen'
+  config.x_download_options = "noopen"
 
   # =============================================================================
   # X-Permitted-Cross-Domain-Policies: none
@@ -75,7 +75,7 @@ SecureHeaders::Configuration.default do |config|
   #   - master-only: Only allow master policy file
   #   - by-content-type: Only allow by content type
   #   - all: Allow all cross-domain access (not recommended)
-  config.x_permitted_cross_domain_policies = 'none'
+  config.x_permitted_cross_domain_policies = "none"
 
   # =============================================================================
   # Referrer-Policy: strict-origin-when-cross-origin
@@ -91,7 +91,7 @@ SecureHeaders::Configuration.default do |config|
   #   - unsafe-url: Always send full URL (not recommended)
   #
   # strict-origin-when-cross-origin is a good balance of privacy and functionality
-  config.referrer_policy = 'strict-origin-when-cross-origin'
+  config.referrer_policy = "strict-origin-when-cross-origin"
 
   # =============================================================================
   # Content-Security-Policy (CSP)
@@ -209,7 +209,7 @@ SecureHeaders::Configuration.default do |config|
     frame_ancestors: %w['none'],
 
     # Upgrade insecure requests to HTTPS
-    upgrade_insecure_requests: true,
+    upgrade_insecure_requests: true
 
     # Report violations to this endpoint (optional)
     # Useful for monitoring CSP violations in production

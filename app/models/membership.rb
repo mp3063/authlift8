@@ -9,31 +9,31 @@ class Membership < ApplicationRecord
 
   # Scopes
   scope :active, -> { where(active: true) }
-  scope :owners, -> { where(role: 'owner') }
-  scope :admins, -> { where(role: 'admin') }
+  scope :owners, -> { where(role: "owner") }
+  scope :admins, -> { where(role: "admin") }
 
   # Role checks
   def owner?
-    role == 'owner'
+    role == "owner"
   end
 
   def admin?
-    role == 'admin'
+    role == "admin"
   end
 
   def member?
-    role == 'member'
+    role == "member"
   end
 
   # Scope management
   def add_scope(scope)
     current_scopes = scopes.is_a?(Array) ? scopes : []
-    update(scopes: (current_scopes + [scope.to_s]).uniq)
+    update(scopes: (current_scopes + [ scope.to_s ]).uniq)
   end
 
   def remove_scope(scope)
     current_scopes = scopes.is_a?(Array) ? scopes : []
-    update(scopes: current_scopes - [scope.to_s])
+    update(scopes: current_scopes - [ scope.to_s ])
   end
 
   def has_scope?(scope)

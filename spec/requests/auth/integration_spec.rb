@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'Auth::Integration', type: :request do
   let(:user) { create(:user, first_name: 'John', last_name: 'Doe', email: 'john@example.com') }
   let(:company) { create(:company, code: 'TEST123', name: 'Test Company') }
-  let(:membership) { create(:membership, user: user, company: company, role: 'admin', scopes: ['products:read']) }
+  let(:membership) { create(:membership, user: user, company: company, role: 'admin', scopes: [ 'products:read' ]) }
 
   # Helper to generate JWT token
   def generate_jwt_token(user)

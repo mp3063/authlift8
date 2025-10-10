@@ -9,7 +9,7 @@ class CreatePartnershipApps < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :partnership_apps, [:partnership_id, :oauth_application_id],
+    add_index :partnership_apps, [ :partnership_id, :oauth_application_id ],
               unique: true, name: 'idx_partnership_apps_unique'
   end
 end

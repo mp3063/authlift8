@@ -11,10 +11,10 @@ module Api
         render json: {
           keys: [
             {
-              kty: 'RSA',
-              use: 'sig',
-              kid: 'authlift-2025',
-              alg: 'RS256',
+              kty: "RSA",
+              use: "sig",
+              kid: "authlift-2025",
+              alg: "RS256",
               n: Base64.urlsafe_encode64(public_key.n.to_s(2), padding: false),
               e: Base64.urlsafe_encode64(public_key.e.to_s(2), padding: false)
             }
@@ -22,17 +22,17 @@ module Api
         }
       rescue StandardError => e
         Rails.logger.error "JWKS generation error: #{e.message}"
-        render json: { error: 'Unable to generate JWKS' }, status: :internal_server_error
+        render json: { error: "Unable to generate JWKS" }, status: :internal_server_error
       end
 
       # GET /api/v1/public_key.pem
       # Returns the public key in PEM format
       # Useful for simple JWT verification without JWKS parsing
       def pem
-        render plain: public_key.to_pem, content_type: 'text/plain'
+        render plain: public_key.to_pem, content_type: "text/plain"
       rescue StandardError => e
         Rails.logger.error "PEM generation error: #{e.message}"
-        render plain: 'Unable to generate PEM', status: :internal_server_error
+        render plain: "Unable to generate PEM", status: :internal_server_error
       end
 
       private

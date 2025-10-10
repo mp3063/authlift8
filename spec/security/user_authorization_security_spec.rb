@@ -26,7 +26,7 @@ RSpec.describe 'User Authorization Security', type: :model do
            user: regular_user,
            company: company_c,
            active: true,
-           scopes: ['products:read', 'orders:read'])
+           scopes: [ 'products:read', 'orders:read' ])
   end
 
   let(:inactive_membership) do
@@ -34,7 +34,7 @@ RSpec.describe 'User Authorization Security', type: :model do
            user: regular_user,
            company: create(:company),
            active: false,
-           scopes: ['admin:write'])
+           scopes: [ 'admin:write' ])
   end
 
   describe 'Super Admin - Global Access' do
@@ -213,7 +213,7 @@ RSpec.describe 'User Authorization Security', type: :model do
                           user: regular_user,
                           company: create(:company),
                           active: true,
-                          scopes: ['test:scope'])
+                          scopes: [ 'test:scope' ])
 
       test_company = active_mem.company
 
@@ -336,7 +336,7 @@ RSpec.describe 'User Authorization Security', type: :model do
 
       scopes = regular_user.all_scopes(company: company_c)
 
-      expect(scopes).to eq(['products:read', 'orders:read'])
+      expect(scopes).to eq([ 'products:read', 'orders:read' ])
     end
 
     it 'handles nil/empty membership scopes gracefully' do
@@ -415,7 +415,7 @@ RSpec.describe 'User Authorization Security', type: :model do
 
       create(:membership, :owner, user: owner, company: test_company, active: true)
       create(:membership, :admin, user: admin, company: test_company, active: true)
-      create(:membership, user: member, company: test_company, active: true, scopes: ['read:only'])
+      create(:membership, user: member, company: test_company, active: true, scopes: [ 'read:only' ])
 
       # Owner has full access
       expect(owner.has_scope?('admin:delete', company: test_company)).to be true
@@ -438,7 +438,7 @@ RSpec.describe 'User Authorization Security', type: :model do
                           company: test_company,
                           active: true,
                           role: 'member',
-                          scopes: ['read:only'])
+                          scopes: [ 'read:only' ])
 
       expect(test_user.has_scope?('admin:write', company: test_company)).to be false
 

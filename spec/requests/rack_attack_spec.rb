@@ -181,7 +181,7 @@ RSpec.describe 'Rack::Attack Rate Limiting', type: :request do
         400.times do
           get '/up'
           expect(response.status).not_to eq(429), "Health check should not be throttled"
-          expect([200, 503]).to include(response.status)
+          expect([ 200, 503 ]).to include(response.status)
         end
       end
 
@@ -352,7 +352,7 @@ RSpec.describe 'Rack::Attack Rate Limiting', type: :request do
           sign_out :user if i > 0
           post '/users/sign_in', params: { user: { email: user.email, password: user.password } }
           # Should redirect on success (302 or 303)
-          expect([200, 302, 303]).to include(response.status)
+          expect([ 200, 302, 303 ]).to include(response.status)
         end
 
         # 6th login will hit login/ip throttle (which counts all logins, not just failed)
@@ -464,7 +464,7 @@ RSpec.describe 'Rack::Attack Rate Limiting', type: :request do
 
         # Successful login should clear the counter
         post '/users/sign_in', params: { user: { email: user.email, password: user.password } }
-        expect([302, 303]).to include(response.status) # Redirect on success
+        expect([ 302, 303 ]).to include(response.status) # Redirect on success
 
         # After successful login and counter reset, should be able to make failed attempts again
         # Sign out first
@@ -908,7 +908,7 @@ RSpec.describe 'Rack::Attack Rate Limiting', type: :request do
         500.times do
           get '/up'
           expect(response.status).not_to eq(429), "Health check should not be throttled"
-          expect([200, 503]).to include(response.status)
+          expect([ 200, 503 ]).to include(response.status)
         end
       end
     end

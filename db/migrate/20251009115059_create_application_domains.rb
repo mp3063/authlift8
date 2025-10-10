@@ -9,7 +9,7 @@ class CreateApplicationDomains < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :application_domains, [:oauth_application_id, :domain],
+    add_index :application_domains, [ :oauth_application_id, :domain ],
               unique: true, name: 'index_app_domains_unique'
   end
 end

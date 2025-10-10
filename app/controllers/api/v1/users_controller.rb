@@ -13,11 +13,11 @@ module Api
         if user
           render json: user_profile_response(user), status: :ok
         else
-          render json: { error: 'User not found' }, status: :not_found
+          render json: { error: "User not found" }, status: :not_found
         end
       rescue StandardError => e
         Rails.logger.error "Profile fetch error: #{e.message}\n#{e.backtrace.join("\n")}"
-        render json: { error: 'Unable to fetch profile' }, status: :internal_server_error
+        render json: { error: "Unable to fetch profile" }, status: :internal_server_error
       end
 
       # GET /api/v1/users/company_info/:company_id
@@ -28,7 +28,7 @@ module Api
         user = current_resource_owner
 
         unless user
-          render json: { error: 'User not found' }, status: :not_found
+          render json: { error: "User not found" }, status: :not_found
           return
         end
 
@@ -46,28 +46,28 @@ module Api
           if params[:company_id].present?
             Rails.logger.warn "SECURITY: User #{user.id} attempted to access company #{params[:company_id]} without active membership - IP: #{request.remote_ip}"
           end
-          render json: { error: 'Company not found or access denied' }, status: :forbidden
+          render json: { error: "Company not found or access denied" }, status: :forbidden
           return
         end
 
         # Verify membership is active before returning data
         unless membership.active
           Rails.logger.warn "SECURITY: User #{user.id} attempted to access company #{membership.company_id} with inactive membership - IP: #{request.remote_ip}"
-          render json: { error: 'Access denied - membership inactive' }, status: :forbidden
+          render json: { error: "Access denied - membership inactive" }, status: :forbidden
           return
         end
 
         company = membership.company
 
         unless company
-          render json: { error: 'Company not found' }, status: :not_found
+          render json: { error: "Company not found" }, status: :not_found
           return
         end
 
         render json: company_info_response(user, company, membership), status: :ok
       rescue StandardError => e
         Rails.logger.error "Company info fetch error: #{e.message}\n#{e.backtrace.join("\n")}"
-        render json: { error: 'Unable to fetch company information' }, status: :internal_server_error
+        render json: { error: "Unable to fetch company information" }, status: :internal_server_error
       end
 
       private

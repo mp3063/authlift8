@@ -6,9 +6,9 @@ class CreateApplicationsCompanies < ActiveRecord::Migration[8.0]
       t.references :company, null: false, foreign_key: true
     end
 
-    add_index :applications_companies, [:application_id, :company_id],
+    add_index :applications_companies, [ :application_id, :company_id ],
               unique: true, name: 'idx_app_company'
-    add_index :applications_companies, [:company_id, :application_id],
+    add_index :applications_companies, [ :company_id, :application_id ],
               name: 'idx_company_app'
   end
 end

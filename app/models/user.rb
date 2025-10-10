@@ -8,7 +8,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :trackable, :omniauthable,
-         omniauth_providers: [:google_oauth2, :github, :facebook, :twitter]
+         omniauth_providers: [ :google_oauth2, :github, :facebook, :twitter ]
 
   # Associations
   belongs_to :company, optional: true  # Direct company for current context
@@ -16,11 +16,11 @@ class User < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :companies, through: :memberships
   has_many :oauth_access_tokens,
-           class_name: 'Doorkeeper::AccessToken',
+           class_name: "Doorkeeper::AccessToken",
            foreign_key: :resource_owner_id,
            dependent: :delete_all
   has_many :oauth_access_grants,
-           class_name: 'Doorkeeper::AccessGrant',
+           class_name: "Doorkeeper::AccessGrant",
            foreign_key: :resource_owner_id,
            dependent: :delete_all
 
@@ -72,7 +72,7 @@ class User < ApplicationRecord
 
   # Scopes - combines user-level + membership scopes
   def all_scopes(company: nil)
-    user_scopes = (scopes || '').split(',').map(&:strip)
+    user_scopes = (scopes || "").split(",").map(&:strip)
 
     target_company = company || current_company
     membership = target_company ? memberships.find_by(company: target_company) : nil
@@ -137,8 +137,8 @@ class User < ApplicationRecord
     user = where(email: auth.info.email).first_or_initialize do |u|
       u.email = auth.info.email
       u.password = Devise.friendly_token[0, 20]
-      u.first_name = auth.info.first_name || auth.info.name&.split&.first || ''
-      u.last_name = auth.info.last_name || auth.info.name&.split&.last || ''
+      u.first_name = auth.info.first_name || auth.info.name&.split&.first || ""
+      u.last_name = auth.info.last_name || auth.info.name&.split&.last || ""
     end
 
     # Create a personal company for new OAuth users
@@ -154,7 +154,7 @@ class User < ApplicationRecord
       Membership.create!(
         user: user,
         company: company,
-        role: 'owner',
+        role: "owner",
         active: true
       )
     end

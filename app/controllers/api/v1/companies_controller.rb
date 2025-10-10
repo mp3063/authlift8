@@ -15,18 +15,18 @@ module Api
         user = current_resource_owner
 
         unless user
-          render json: { error: 'User not found' }, status: :not_found
+          render json: { error: "User not found" }, status: :not_found
           return
         end
 
         companies = user.companies
 
         # Apply filters
-        companies = companies.active if params[:active] == 'true'
+        companies = companies.active if params[:active] == "true"
 
         # Pagination
         page = params[:page]&.to_i || 1
-        per_page = [[params[:per_page]&.to_i || 25, 100].min, 1].max
+        per_page = [ [ params[:per_page]&.to_i || 25, 100 ].min, 1 ].max
 
         total = companies.count
         companies = companies.offset((page - 1) * per_page).limit(per_page)
@@ -42,7 +42,7 @@ module Api
         }, status: :ok
       rescue StandardError => e
         Rails.logger.error "Companies index error: #{e.message}\n#{e.backtrace.join("\n")}"
-        render json: { error: 'Unable to fetch companies' }, status: :internal_server_error
+        render json: { error: "Unable to fetch companies" }, status: :internal_server_error
       end
 
       # GET /api/v1/companies/:id
@@ -52,7 +52,7 @@ module Api
         user = current_resource_owner
 
         unless user
-          render json: { error: 'User not found' }, status: :not_found
+          render json: { error: "User not found" }, status: :not_found
           return
         end
 
@@ -60,7 +60,7 @@ module Api
         company = user.companies.find_by(id: params[:id])
 
         unless company
-          render json: { error: 'Company not found or access denied' }, status: :not_found
+          render json: { error: "Company not found or access denied" }, status: :not_found
           return
         end
 
@@ -81,7 +81,7 @@ module Api
         }, status: :ok
       rescue StandardError => e
         Rails.logger.error "Company show error: #{e.message}\n#{e.backtrace.join("\n")}"
-        render json: { error: 'Unable to fetch company details' }, status: :internal_server_error
+        render json: { error: "Unable to fetch company details" }, status: :internal_server_error
       end
 
       private

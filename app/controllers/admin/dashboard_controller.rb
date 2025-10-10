@@ -9,8 +9,8 @@ module Admin
       @total_companies = Company.count
       @total_oauth_apps = Doorkeeper::Application.count
       @active_tokens = Doorkeeper::AccessToken
-                        .where('revoked_at IS NULL OR revoked_at > ?', Time.current)
-                        .where('expires_in IS NULL OR created_at + (expires_in * INTERVAL \'1 second\') > ?', Time.current)
+                        .where("revoked_at IS NULL OR revoked_at > ?", Time.current)
+                        .where("expires_in IS NULL OR created_at + (expires_in * INTERVAL '1 second') > ?", Time.current)
                         .count
 
       # Recent activity

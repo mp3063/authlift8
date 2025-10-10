@@ -48,7 +48,7 @@ RSpec.describe 'Dashboard', type: :request do
 
         it 'assigns @user_companies with all active memberships' do
           get dashboard_path
-          expect(assigns(:user_companies)).to match_array([company, company2])
+          expect(assigns(:user_companies)).to match_array([ company, company2 ])
         end
 
         it 'orders companies by name' do

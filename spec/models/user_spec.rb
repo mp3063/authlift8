@@ -174,7 +174,7 @@ RSpec.describe User, type: :model do
     context 'when user has membership scopes' do
       before do
         user.update(company: company)
-        create(:membership, user: user, company: company, scopes: ['products:read', 'products:write'])
+        create(:membership, user: user, company: company, scopes: [ 'products:read', 'products:write' ])
       end
 
       it 'returns membership scopes' do
@@ -185,7 +185,7 @@ RSpec.describe User, type: :model do
     context 'when user has both user-level and membership scopes' do
       before do
         user.update(company: company, scopes: 'users:read,users:write')
-        create(:membership, user: user, company: company, scopes: ['products:read', 'users:read'])
+        create(:membership, user: user, company: company, scopes: [ 'products:read', 'users:read' ])
       end
 
       it 'returns unique combination of both' do
@@ -197,7 +197,7 @@ RSpec.describe User, type: :model do
       before { user.update(scopes: 'users:read') }
 
       it 'returns only user-level scopes' do
-        expect(user.all_scopes).to eq(['users:read'])
+        expect(user.all_scopes).to eq([ 'users:read' ])
       end
     end
   end
@@ -219,7 +219,7 @@ RSpec.describe User, type: :model do
     context 'when user is not an admin' do
       before do
         user.update(company: company)
-        create(:membership, user: user, company: company, scopes: ['products:read', 'products:write'])
+        create(:membership, user: user, company: company, scopes: [ 'products:read', 'products:write' ])
       end
 
       it 'returns true for scopes the user has' do
@@ -383,7 +383,7 @@ RSpec.describe User, type: :model do
       it 'sets first and last name to empty string or uses email fallback' do
         user = User.from_omniauth(auth_without_names)
         # The implementation may set names to empty strings or use email as fallback
-        expect([user.first_name, user.last_name]).to all(be_a(String))
+        expect([ user.first_name, user.last_name ]).to all(be_a(String))
       end
     end
   end

@@ -8,7 +8,7 @@ class Company < ApplicationRecord
   has_many :users, through: :memberships
 
   has_many :oauth_applications,
-           class_name: 'Doorkeeper::Application',
+           class_name: "Doorkeeper::Application",
            as: :owner,
            dependent: :destroy
 
@@ -17,7 +17,7 @@ class Company < ApplicationRecord
 
   # OAuth app access control (HABTM)
   has_and_belongs_to_many :allowed_applications,
-                          class_name: 'Doorkeeper::Application',
+                          class_name: "Doorkeeper::Application",
                           join_table: :applications_companies,
                           foreign_key: :company_id,
                           association_foreign_key: :application_id
@@ -28,14 +28,14 @@ class Company < ApplicationRecord
   # Partnerships - using partner_owner/partner_client structure
   # As owner (supplier/provider)
   has_many :owned_partnerships,
-           class_name: 'Partnership',
+           class_name: "Partnership",
            foreign_key: :partner_owner_id,
            dependent: :destroy
   has_many :clients, through: :owned_partnerships, source: :partner_client
 
   # As client (customer/buyer)
   has_many :client_partnerships,
-           class_name: 'Partnership',
+           class_name: "Partnership",
            foreign_key: :partner_client_id,
            dependent: :destroy
   has_many :suppliers, through: :client_partnerships, source: :partner_owner

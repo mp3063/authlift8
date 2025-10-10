@@ -5,7 +5,7 @@ Doorkeeper.configure do
   orm :active_record
 
   # Use JWT for access tokens (except in test where we use plain tokens)
-  access_token_generator '::Doorkeeper::JWT' unless Rails.env.test?
+  access_token_generator "::Doorkeeper::JWT" unless Rails.env.test?
 
   # Token expiration
   access_token_expires_in 1.hour
@@ -64,7 +64,7 @@ Doorkeeper::JWT.configure do
 
     payload = {
       # Standard JWT claims
-      iss: ENV['AUTHLIFT_URL'],                    # Issuer
+      iss: ENV["AUTHLIFT_URL"],                    # Issuer
       sub: user.id.to_s,                           # Subject (user ID)
       aud: application&.uid,                       # Audience (client app)
       iat: Time.now.to_i,                          # Issued at
@@ -88,9 +88,9 @@ Doorkeeper::JWT.configure do
           name: user.current_company.name,
           logo_code: user.current_company.logo_code
         }
-      else
+               else
         nil
-      end,
+               end,
 
       # Membership info
       membership: if user.current_membership
@@ -98,9 +98,9 @@ Doorkeeper::JWT.configure do
           role: user.current_membership.role,
           scopes: user.current_membership.scopes
         }
-      else
+                  else
         nil
-      end,
+                  end,
 
       # Token scopes
       scopes: opts[:scopes].to_a

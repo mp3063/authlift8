@@ -12,11 +12,11 @@ RSpec.describe 'Api::V1::UsersController Security', type: :request do
   let(:company3) { create(:company, code: 'COMP003', name: 'Other User Company') }
 
   let(:active_membership1) do
-    create(:membership, :admin, user: user, company: company1, active: true, scopes: ['products:read'])
+    create(:membership, :admin, user: user, company: company1, active: true, scopes: [ 'products:read' ])
   end
 
   let(:inactive_membership) do
-    create(:membership, user: user, company: company2, active: false, scopes: ['products:read'])
+    create(:membership, user: user, company: company2, active: false, scopes: [ 'products:read' ])
   end
 
   let(:other_user_membership) do
@@ -208,7 +208,7 @@ RSpec.describe 'Api::V1::UsersController Security', type: :request do
         expect(json['membership']['id']).to eq(active_membership1.id)
         expect(json['membership']['role']).to eq('admin')
         expect(json['membership']['active']).to be true
-        expect(json['membership']['scopes']).to eq(['products:read'])
+        expect(json['membership']['scopes']).to eq([ 'products:read' ])
       end
 
       it 'includes complete user profile data' do

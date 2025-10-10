@@ -3,12 +3,12 @@
 Rails.application.config.middleware.use OmniAuth::Builder do
   # Google OAuth2
   provider :google_oauth2,
-           ENV['GOOGLE_CLIENT_ID'],
-           ENV['GOOGLE_CLIENT_SECRET'],
+           ENV["GOOGLE_CLIENT_ID"],
+           ENV["GOOGLE_CLIENT_SECRET"],
            {
-             scope: 'email,profile',
-             prompt: 'select_account',
-             image_aspect_ratio: 'square',
+             scope: "email,profile",
+             prompt: "select_account",
+             image_aspect_ratio: "square",
              image_size: 50
            }
 
@@ -44,7 +44,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
 
   # Additional configuration
   configure do |config|
-    config.path_prefix = '/users/auth'
+    config.path_prefix = "/users/auth"
   end
 end
 
@@ -53,6 +53,6 @@ end
 # GET requests expose OAuth state parameters in URLs (browser history, logs, referrers)
 # This is a critical security vulnerability (CVE-2015-9284)
 # Reference: https://nvd.nist.gov/vuln/detail/CVE-2015-9284
-OmniAuth.config.allowed_request_methods = [:post]
+OmniAuth.config.allowed_request_methods = [ :post ]
 # Remove the silence_get_warning since we're properly using POST only
 # OmniAuth.config.silence_get_warning = true

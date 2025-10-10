@@ -3,7 +3,7 @@
 RSpec.configure do |config|
   config.before(:each, type: :request) do
     # Configure allowed redirect hosts for Auth::Integration tests
-    stub_const('Auth::IntegrationController::ALLOWED_REDIRECT_HOSTS', ['example.com', 'www.example.com'])
+    stub_const('Auth::IntegrationController::ALLOWED_REDIRECT_HOSTS', [ 'example.com', 'www.example.com' ])
 
     # Configure AUTHLIFT_URL for JWT issuer validation
     allow(ENV).to receive(:fetch).and_call_original

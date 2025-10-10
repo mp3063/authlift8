@@ -1,7 +1,7 @@
 # app/controllers/admin/oauth_applications_controller.rb
 module Admin
   class OauthApplicationsController < Admin::BaseController
-    before_action :set_oauth_application, only: [:show, :edit, :update, :destroy]
+    before_action :set_oauth_application, only: [ :show, :edit, :update, :destroy ]
 
     # GET /admin/oauth_applications
     def index
@@ -12,11 +12,11 @@ module Admin
       # Optional filters
       if params[:search].present?
         search_term = "%#{params[:search]}%"
-        @oauth_applications = @oauth_applications.where('name ILIKE ? OR uid ILIKE ?', search_term, search_term)
+        @oauth_applications = @oauth_applications.where("name ILIKE ? OR uid ILIKE ?", search_term, search_term)
       end
 
-      @oauth_applications = @oauth_applications.where(trusted: true) if params[:trusted_only] == '1'
-      @oauth_applications = @oauth_applications.where(partnerships_allowed: true) if params[:partnerships_only] == '1'
+      @oauth_applications = @oauth_applications.where(trusted: true) if params[:trusted_only] == "1"
+      @oauth_applications = @oauth_applications.where(partnerships_allowed: true) if params[:partnerships_only] == "1"
     end
 
     # GET /admin/oauth_applications/:id
@@ -26,7 +26,7 @@ module Admin
                         .order(created_at: :desc)
                         .limit(10)
 
-      @application_domains = @oauth_application.application_domains.includes(:company).order('companies.name ASC')
+      @application_domains = @oauth_application.application_domains.includes(:company).order("companies.name ASC")
       @allowed_companies = @oauth_application.companies.order(name: :asc)
     end
 
@@ -40,10 +40,10 @@ module Admin
       @oauth_application = Doorkeeper::Application.new(oauth_application_params)
 
       if @oauth_application.save
-        flash[:notice] = 'OAuth application was successfully created.'
+        flash[:notice] = "OAuth application was successfully created."
         redirect_to admin_oauth_application_path(@oauth_application)
       else
-        flash.now[:alert] = 'Failed to create OAuth application.'
+        flash.now[:alert] = "Failed to create OAuth application."
         render :new, status: :unprocessable_entity
       end
     end
@@ -55,10 +55,10 @@ module Admin
     # PATCH/PUT /admin/oauth_applications/:id
     def update
       if @oauth_application.update(oauth_application_params)
-        flash[:notice] = 'OAuth application was successfully updated.'
+        flash[:notice] = "OAuth application was successfully updated."
         redirect_to admin_oauth_application_path(@oauth_application)
       else
-        flash.now[:alert] = 'Failed to update OAuth application.'
+        flash.now[:alert] = "Failed to update OAuth application."
         render :edit, status: :unprocessable_entity
       end
     end
@@ -71,8 +71,8 @@ module Admin
       # 2. Not expired (expires_in is NULL OR created_at + expires_in > current time)
       active_tokens = Doorkeeper::AccessToken
                        .where(application_id: @oauth_application.id)
-                       .where('revoked_at IS NULL OR revoked_at > ?', Time.current)
-                       .where('expires_in IS NULL OR created_at + (expires_in * INTERVAL \'1 second\') > ?', Time.current)
+                       .where("revoked_at IS NULL OR revoked_at > ?", Time.current)
+                       .where("expires_in IS NULL OR created_at + (expires_in * INTERVAL '1 second') > ?", Time.current)
                        .count
 
       if active_tokens > 0
@@ -81,7 +81,7 @@ module Admin
       end
 
       @oauth_application.destroy
-      flash[:notice] = 'OAuth application was successfully deleted.'
+      flash[:notice] = "OAuth application was successfully deleted."
       redirect_to admin_oauth_applications_path
     end
 
@@ -90,7 +90,7 @@ module Admin
     def set_oauth_application
       @oauth_application = Doorkeeper::Application.find(params[:id])
     rescue ActiveRecord::RecordNotFound
-      flash[:alert] = 'OAuth application not found.'
+      flash[:alert] = "OAuth application not found."
       redirect_to admin_oauth_applications_path
     end
 

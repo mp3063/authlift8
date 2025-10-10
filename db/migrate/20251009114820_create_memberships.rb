@@ -12,7 +12,7 @@ class CreateMemberships < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :memberships, [:user_id, :company_id], unique: true
+    add_index :memberships, [ :user_id, :company_id ], unique: true
     add_index :memberships, :scopes, using: :gin
     add_index :memberships, :info, using: :gin
   end

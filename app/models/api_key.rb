@@ -11,7 +11,7 @@ class ApiKey < ApplicationRecord
 
   # Scopes
   scope :active, -> { where(active: true) }
-  scope :unexpired, -> { where('expires_at IS NULL OR expires_at > ?', Time.current) }
+  scope :unexpired, -> { where("expires_at IS NULL OR expires_at > ?", Time.current) }
 
   # Check if API key is valid
   def valid_key?
@@ -36,12 +36,12 @@ class ApiKey < ApplicationRecord
 
   def add_scope(scope)
     current_scopes = scopes.is_a?(Array) ? scopes : []
-    update(scopes: (current_scopes + [scope.to_s]).uniq)
+    update(scopes: (current_scopes + [ scope.to_s ]).uniq)
   end
 
   def remove_scope(scope)
     current_scopes = scopes.is_a?(Array) ? scopes : []
-    update(scopes: current_scopes - [scope.to_s])
+    update(scopes: current_scopes - [ scope.to_s ])
   end
 
   private

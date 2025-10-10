@@ -13,7 +13,7 @@ class DashboardController < ApplicationController
     @user_companies = current_user.memberships
                                   .active
                                   .includes(:company)
-                                  .order('companies.name ASC')
+                                  .order("companies.name ASC")
                                   .map(&:company)
 
     # OAuth applications available for current company

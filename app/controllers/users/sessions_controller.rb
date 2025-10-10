@@ -1,7 +1,7 @@
 # app/controllers/users/sessions_controller.rb
 class Users::SessionsController < Devise::SessionsController
-  skip_before_action :require_no_authentication, only: [:new]
-  before_action :redirect_if_authenticated, only: [:new]
+  skip_before_action :require_no_authentication, only: [ :new ]
+  before_action :redirect_if_authenticated, only: [ :new ]
   # before_action :configure_sign_in_params, only: [:create]
 
   # GET /users/sign_in

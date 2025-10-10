@@ -161,18 +161,18 @@ RSpec.describe Membership, type: :model do
   end
 
   describe 'scope management methods' do
-    let(:membership) { create(:membership, scopes: ['products:read']) }
+    let(:membership) { create(:membership, scopes: [ 'products:read' ]) }
 
     describe '#add_scope' do
       it 'adds a new scope to the membership' do
         expect {
           membership.add_scope('products:write')
-        }.to change { membership.reload.scopes }.from(['products:read']).to(['products:read', 'products:write'])
+        }.to change { membership.reload.scopes }.from([ 'products:read' ]).to([ 'products:read', 'products:write' ])
       end
 
       it 'does not add duplicate scopes' do
         membership.add_scope('products:read')
-        expect(membership.reload.scopes).to eq(['products:read'])
+        expect(membership.reload.scopes).to eq([ 'products:read' ])
       end
 
       it 'handles symbol input' do
@@ -190,7 +190,7 @@ RSpec.describe Membership, type: :model do
 
         it 'adds the first scope' do
           membership.add_scope('products:read')
-          expect(membership.reload.scopes).to eq(['products:read'])
+          expect(membership.reload.scopes).to eq([ 'products:read' ])
         end
       end
 
@@ -199,18 +199,18 @@ RSpec.describe Membership, type: :model do
 
         it 'initializes scopes and adds the scope' do
           membership.add_scope('products:read')
-          expect(membership.reload.scopes).to eq(['products:read'])
+          expect(membership.reload.scopes).to eq([ 'products:read' ])
         end
       end
     end
 
     describe '#remove_scope' do
-      let(:membership) { create(:membership, scopes: ['products:read', 'products:write', 'orders:read']) }
+      let(:membership) { create(:membership, scopes: [ 'products:read', 'products:write', 'orders:read' ]) }
 
       it 'removes an existing scope' do
         expect {
           membership.remove_scope('products:write')
-        }.to change { membership.reload.scopes }.from(['products:read', 'products:write', 'orders:read']).to(['products:read', 'orders:read'])
+        }.to change { membership.reload.scopes }.from([ 'products:read', 'products:write', 'orders:read' ]).to([ 'products:read', 'orders:read' ])
       end
 
       it 'does nothing if scope does not exist' do
@@ -251,7 +251,7 @@ RSpec.describe Membership, type: :model do
     end
 
     describe '#has_scope?' do
-      let(:membership) { create(:membership, role: 'member', scopes: ['products:read', 'products:write']) }
+      let(:membership) { create(:membership, role: 'member', scopes: [ 'products:read', 'products:write' ]) }
 
       context 'for member role' do
         it 'returns true for scopes the membership has' do
@@ -341,12 +341,12 @@ RSpec.describe Membership, type: :model do
 
     describe 'scopes field' do
       it 'stores array of scopes' do
-        membership.update(scopes: ['products:read', 'products:write', 'orders:read'])
-        expect(membership.reload.scopes).to eq(['products:read', 'products:write', 'orders:read'])
+        membership.update(scopes: [ 'products:read', 'products:write', 'orders:read' ])
+        expect(membership.reload.scopes).to eq([ 'products:read', 'products:write', 'orders:read' ])
       end
 
       it 'can be queried' do
-        membership.update(scopes: ['admin:access'])
+        membership.update(scopes: [ 'admin:access' ])
         result = Membership.where("scopes ? 'admin:access'")
         expect(result).to include(membership)
       end
@@ -430,13 +430,13 @@ RSpec.describe Membership, type: :model do
       end
 
       it 'has different scopes per company' do
-        user.memberships.find_by(company: company1).update(scopes: ['all:access'])
-        user.memberships.find_by(company: company2).update(scopes: ['products:read', 'orders:read'])
-        user.memberships.find_by(company: company3).update(scopes: ['products:read'])
+        user.memberships.find_by(company: company1).update(scopes: [ 'all:access' ])
+        user.memberships.find_by(company: company2).update(scopes: [ 'products:read', 'orders:read' ])
+        user.memberships.find_by(company: company3).update(scopes: [ 'products:read' ])
 
-        expect(user.memberships.find_by(company: company1).scopes).to eq(['all:access'])
+        expect(user.memberships.find_by(company: company1).scopes).to eq([ 'all:access' ])
         expect(user.memberships.find_by(company: company2).scopes).to contain_exactly('products:read', 'orders:read')
-        expect(user.memberships.find_by(company: company3).scopes).to eq(['products:read'])
+        expect(user.memberships.find_by(company: company3).scopes).to eq([ 'products:read' ])
       end
     end
 
@@ -473,7 +473,7 @@ RSpec.describe Membership, type: :model do
     end
 
     context 'scope evolution over time' do
-      let(:membership) { create(:membership, scopes: ['products:read']) }
+      let(:membership) { create(:membership, scopes: [ 'products:read' ]) }
 
       it 'can progressively add scopes' do
         membership.add_scope('products:write')
@@ -487,7 +487,7 @@ RSpec.describe Membership, type: :model do
       end
 
       it 'can revoke scopes' do
-        membership.update(scopes: ['products:read', 'products:write', 'orders:read', 'orders:write'])
+        membership.update(scopes: [ 'products:read', 'products:write', 'orders:read', 'orders:write' ])
 
         membership.remove_scope('products:write')
         expect(membership.scopes).to contain_exactly('products:read', 'orders:read', 'orders:write')

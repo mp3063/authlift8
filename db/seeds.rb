@@ -187,7 +187,7 @@ puts "\n👥 Creating memberships..."
 Membership.find_or_create_by!(user: test_user, company: test_company) do |m|
   m.role = 'owner'
   m.active = true
-  m.scopes = ['products:read', 'products:write', 'orders:read', 'orders:write']
+  m.scopes = [ 'products:read', 'products:write', 'orders:read', 'orders:write' ]
   m.info = { joined_at: '2024-01-01', department: 'Engineering' }
 end
 test_user.update(company: test_company)
@@ -197,7 +197,7 @@ puts "  ✓ test@example.com → Test Company (owner)"
 Membership.find_or_create_by!(user: owner_user, company: acme_corp) do |m|
   m.role = 'owner'
   m.active = true
-  m.scopes = ['products:read', 'products:write', 'orders:read', 'orders:write', 'users:manage']
+  m.scopes = [ 'products:read', 'products:write', 'orders:read', 'orders:write', 'users:manage' ]
   m.info = { joined_at: '2015-01-01', department: 'Management' }
 end
 owner_user.update(company: acme_corp)
@@ -207,7 +207,7 @@ puts "  ✓ owner@acmecorp.com → ACME Corporation (owner)"
 Membership.find_or_create_by!(user: company_admin, company: techstart) do |m|
   m.role = 'admin'
   m.active = true
-  m.scopes = ['products:read', 'products:write', 'orders:read', 'users:read']
+  m.scopes = [ 'products:read', 'products:write', 'orders:read', 'users:read' ]
   m.info = { joined_at: '2023-02-01', department: 'Operations' }
 end
 company_admin.update(company: techstart)
@@ -217,7 +217,7 @@ puts "  ✓ admin@techstart.com → TechStart Inc (admin)"
 Membership.find_or_create_by!(user: member_user, company: globalshop) do |m|
   m.role = 'member'
   m.active = true
-  m.scopes = ['products:read', 'orders:read']
+  m.scopes = [ 'products:read', 'orders:read' ]
   m.info = { joined_at: '2024-03-15', department: 'Sales' }
 end
 member_user.update(company: globalshop)
@@ -227,19 +227,19 @@ puts "  ✓ member@globalshop.com → GlobalShop Ltd (member)"
 Membership.find_or_create_by!(user: multi_user, company: test_company) do |m|
   m.role = 'admin'
   m.active = true
-  m.scopes = ['products:read', 'orders:read']
+  m.scopes = [ 'products:read', 'orders:read' ]
 end
 
 Membership.find_or_create_by!(user: multi_user, company: acme_corp) do |m|
   m.role = 'member'
   m.active = true
-  m.scopes = ['products:read']
+  m.scopes = [ 'products:read' ]
 end
 
 Membership.find_or_create_by!(user: multi_user, company: techstart) do |m|
   m.role = 'admin'
   m.active = true
-  m.scopes = ['products:read', 'products:write', 'orders:read']
+  m.scopes = [ 'products:read', 'products:write', 'orders:read' ]
 end
 multi_user.update(company: test_company)
 puts "  ✓ multi@example.com → Test Company (admin)"
@@ -540,7 +540,7 @@ api_key1 = ApiKey.find_or_create_by!(
   name: 'Production API Key'
 ) do |key|
   key.token = Digest::SHA256.hexdigest("test-company-prod-#{SecureRandom.hex(32)}")
-  key.scopes = ['api:read', 'api:write', 'products:read', 'orders:read']
+  key.scopes = [ 'api:read', 'api:write', 'products:read', 'orders:read' ]
   key.active = true
   key.expires_at = 1.year.from_now
   key.last_used_at = 1.day.ago
@@ -553,7 +553,7 @@ api_key2 = ApiKey.find_or_create_by!(
   name: 'Development API Key'
 ) do |key|
   key.token = Digest::SHA256.hexdigest("acme-dev-#{SecureRandom.hex(32)}")
-  key.scopes = ['api:read', 'products:read']
+  key.scopes = [ 'api:read', 'products:read' ]
   key.active = true
   key.expires_at = 6.months.from_now
 end
@@ -565,7 +565,7 @@ api_key3 = ApiKey.find_or_create_by!(
   name: 'Expired API Key'
 ) do |key|
   key.token = Digest::SHA256.hexdigest("test-expired-#{SecureRandom.hex(32)}")
-  key.scopes = ['api:read']
+  key.scopes = [ 'api:read' ]
   key.active = false
   key.expires_at = 1.month.ago
   key.last_used_at = 2.months.ago

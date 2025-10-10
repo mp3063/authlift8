@@ -6,9 +6,9 @@ module Auth
   class IntegrationController < ApplicationController
     # SECURITY FIX: Selective CSRF protection - only skip for GET requests with valid JWT
     # State-changing operations (POST/DELETE) require either CSRF token or valid JWT
-    skip_before_action :verify_authenticity_token, only: [:check_login, :logout, :switch_company, :change_language]
-    before_action :validate_csrf_or_jwt, only: [:logout, :switch_company, :change_language]
-    before_action :validate_csrf_or_token, except: [:check_login, :logout, :switch_company, :change_language]
+    skip_before_action :verify_authenticity_token, only: [ :check_login, :logout, :switch_company, :change_language ]
+    before_action :validate_csrf_or_jwt, only: [ :logout, :switch_company, :change_language ]
+    before_action :validate_csrf_or_token, except: [ :check_login, :logout, :switch_company, :change_language ]
 
     # SECURITY: Whitelist of allowed language codes
     # Prevents injection of arbitrary values into membership data
@@ -25,7 +25,7 @@ module Auth
       # Check if return_to is present
       unless return_to.present?
         Rails.logger.warn "Invalid redirect URL in check_login: #{return_to}"
-        render json: { error: 'Invalid redirect URL' }, status: :bad_request
+        render json: { error: "Invalid redirect URL" }, status: :bad_request
         return
       end
 
@@ -34,20 +34,20 @@ module Auth
         URI.parse(return_to)
       rescue URI::InvalidURIError => e
         Rails.logger.error "URI parsing error in check_login: #{e.message}"
-        render json: { error: 'Invalid URL format' }, status: :bad_request
+        render json: { error: "Invalid URL format" }, status: :bad_request
         return
       end
 
       # Validate URL format and whitelist
       unless valid_redirect_url?(return_to)
         Rails.logger.warn "Invalid redirect URL in check_login: #{return_to}"
-        render json: { error: 'Invalid redirect URL' }, status: :bad_request
+        render json: { error: "Invalid redirect URL" }, status: :bad_request
         return
       end
 
       return_url = URI(return_to)
-      query_params = URI.decode_www_form(return_url.query || '').to_h
-      query_params['logged_in'] = user_signed_in?.to_s
+      query_params = URI.decode_www_form(return_url.query || "").to_h
+      query_params["logged_in"] = user_signed_in?.to_s
       return_url.query = URI.encode_www_form(query_params)
 
       redirect_to return_url.to_s, allow_other_host: true, status: :see_other
@@ -69,7 +69,7 @@ module Auth
       if token.present?
         begin
           payload = validate_jwt_token(token)
-          user = User.find(payload['sub'])
+          user = User.find(payload["sub"])
 
           # Log security event
           Rails.logger.info "Remote logout initiated for user #{user.id} (#{user.email})"
@@ -80,10 +80,10 @@ module Auth
           # Sign out if current user
           sign_out(user) if current_user == user
 
-          flash[:notice] = 'Logged out successfully'
+          flash[:notice] = "Logged out successfully"
         rescue JWT::ExpiredSignature => e
           Rails.logger.error "Expired token during logout: #{e.message}"
-          flash[:alert] = 'Authentication token has expired'
+          flash[:alert] = "Authentication token has expired"
         rescue JWT::DecodeError => e
           # Map specific JWT errors to expected log messages
           case e.message
@@ -98,16 +98,16 @@ module Auth
           else
             Rails.logger.error "JWT decode error during logout: #{e.message}"
           end
-          flash[:alert] = 'Invalid authentication token'
+          flash[:alert] = "Invalid authentication token"
         rescue ActiveRecord::RecordNotFound => e
           Rails.logger.error "User not found during logout: #{e.message}"
-          flash[:alert] = 'User not found'
+          flash[:alert] = "User not found"
         rescue StandardError => e
           Rails.logger.error "Unexpected error during logout: #{e.class} - #{e.message}"
-          flash[:alert] = 'An error occurred during logout'
+          flash[:alert] = "An error occurred during logout"
         end
       else
-        flash[:alert] = 'Authentication token is required'
+        flash[:alert] = "Authentication token is required"
       end
 
       redirect_to return_to, allow_other_host: true, status: :see_other
@@ -130,14 +130,14 @@ module Auth
       end
 
       if token.blank? || company_code.blank?
-        flash[:alert] = 'Token and company code are required'
+        flash[:alert] = "Token and company code are required"
         redirect_to return_to, allow_other_host: true, status: :see_other
         return
       end
 
       begin
         payload = validate_jwt_token(token)
-        user = User.find(payload['sub'])
+        user = User.find(payload["sub"])
 
         # SECURITY FIX: Only allow switching to companies with ACTIVE memberships
         active_membership = user.memberships.active.joins(:company)
@@ -159,9 +159,9 @@ module Auth
 
             # Redirect with new token
             return_url = URI(return_to)
-            query_params = URI.decode_www_form(return_url.query || '').to_h
-            query_params['token'] = new_token
-            query_params['company_switched'] = 'true'
+            query_params = URI.decode_www_form(return_url.query || "").to_h
+            query_params["token"] = new_token
+            query_params["company_switched"] = "true"
             return_url.query = URI.encode_www_form(query_params)
 
             redirect_to return_url.to_s, allow_other_host: true, status: :see_other
@@ -169,20 +169,20 @@ module Auth
           end
         else
           Rails.logger.warn "Unauthorized company switch attempt: user #{user.id} to company #{company_code}"
-          flash[:alert] = 'Company not found or access denied'
+          flash[:alert] = "Company not found or access denied"
         end
       rescue JWT::DecodeError => e
         # Error already logged in validate_jwt_token
-        flash[:alert] = 'Invalid authentication token'
+        flash[:alert] = "Invalid authentication token"
       rescue JWT::ExpiredSignature => e
         # Error already logged in validate_jwt_token
-        flash[:alert] = 'Authentication token has expired'
+        flash[:alert] = "Authentication token has expired"
       rescue ActiveRecord::RecordNotFound => e
         Rails.logger.error "User not found during company switch: #{e.message}"
-        flash[:alert] = 'User not found'
+        flash[:alert] = "User not found"
       rescue StandardError => e
         Rails.logger.error "Unexpected error during company switch: #{e.class} - #{e.message}"
-        flash[:alert] = 'An error occurred during company switch'
+        flash[:alert] = "An error occurred during company switch"
       end
 
       redirect_to return_to, allow_other_host: true, status: :see_other
@@ -203,7 +203,7 @@ module Auth
       end
 
       if token.blank? || language.blank?
-        flash[:alert] = 'Token and language are required'
+        flash[:alert] = "Token and language are required"
         redirect_to return_to, allow_other_host: true, status: :see_other
         return
       end
@@ -211,40 +211,40 @@ module Auth
       # SECURITY FIX: Validate language against whitelist
       unless ALLOWED_LANGUAGES.include?(language.to_s.downcase)
         Rails.logger.warn "Invalid language code attempted: #{language}"
-        flash[:alert] = 'Invalid language code'
+        flash[:alert] = "Invalid language code"
         redirect_to return_to, allow_other_host: true, status: :see_other
         return
       end
 
       begin
         payload = validate_jwt_token(token)
-        user = User.find(payload['sub'])
+        user = User.find(payload["sub"])
         membership = user.current_membership
 
         if membership
           # Safely update language in membership info
           membership.info ||= {}
-          membership.info['language'] = language.downcase
+          membership.info["language"] = language.downcase
           membership.save!
 
           Rails.logger.info "User #{user.id} changed language to #{language}"
           flash[:notice] = "Language changed to #{language}"
         else
           Rails.logger.warn "No active membership found for user #{user.id}"
-          flash[:alert] = 'No active membership found'
+          flash[:alert] = "No active membership found"
         end
       rescue JWT::DecodeError => e
         # Error already logged in validate_jwt_token
-        flash[:alert] = 'Invalid authentication token'
+        flash[:alert] = "Invalid authentication token"
       rescue JWT::ExpiredSignature => e
         # Error already logged in validate_jwt_token
-        flash[:alert] = 'Authentication token has expired'
+        flash[:alert] = "Authentication token has expired"
       rescue ActiveRecord::RecordNotFound => e
         Rails.logger.error "User not found during language change: #{e.message}"
-        flash[:alert] = 'User not found'
+        flash[:alert] = "User not found"
       rescue StandardError => e
         Rails.logger.error "Unexpected error during language change: #{e.class} - #{e.message}"
-        flash[:alert] = 'An error occurred during language change'
+        flash[:alert] = "An error occurred during language change"
       end
 
       redirect_to return_to, allow_other_host: true, status: :see_other
@@ -268,7 +268,7 @@ module Auth
       jwt_validation_failed = false
       if token.present?
         # Check if token looks like JWT (3 parts separated by dots)
-        parts = token.to_s.split('.')
+        parts = token.to_s.split(".")
         if parts.length == 3
           # Has JWT structure - try to decode (without verification)
           begin
@@ -296,16 +296,16 @@ module Auth
       else
         # Manual CSRF validation when forgery protection is disabled
         # This ensures security tests can verify CSRF protection works
-        unless params[:authenticity_token].present? || request.headers['X-CSRF-Token'].present?
+        unless params[:authenticity_token].present? || request.headers["X-CSRF-Token"].present?
           # Only log CSRF error if we didn't already log JWT error
           Rails.logger.error "CSRF validation failed: No valid authenticity token provided" unless jwt_validation_failed
-          render json: { error: 'Invalid authenticity token' }, status: :forbidden
+          render json: { error: "Invalid authenticity token" }, status: :forbidden
         end
       end
     rescue ActionController::InvalidAuthenticityToken => e
       # Only log CSRF error if we didn't already log JWT error
       Rails.logger.error "CSRF validation failed: #{e.message}" unless jwt_validation_failed
-      render json: { error: 'Invalid authenticity token' }, status: :forbidden
+      render json: { error: "Invalid authenticity token" }, status: :forbidden
     end
 
     # SECURITY FIX: Validates CSRF token OR JWT token for state-changing operations
@@ -337,14 +337,14 @@ module Auth
       else
         # Manual CSRF validation when forgery protection is disabled
         # This ensures security tests can verify CSRF protection works
-        unless params[:authenticity_token].present? || request.headers['X-CSRF-Token'].present?
+        unless params[:authenticity_token].present? || request.headers["X-CSRF-Token"].present?
           Rails.logger.error "CSRF validation failed: No valid authenticity token provided"
-          render json: { error: 'Invalid authenticity token' }, status: :forbidden
+          render json: { error: "Invalid authenticity token" }, status: :forbidden
         end
       end
     rescue ActionController::InvalidAuthenticityToken => e
       Rails.logger.error "CSRF validation failed: #{e.message}"
-      render json: { error: 'Invalid authenticity token' }, status: :forbidden
+      render json: { error: "Invalid authenticity token" }, status: :forbidden
     end
 
     # SECURITY: Returns allowed redirect hosts from environment configuration
@@ -352,8 +352,8 @@ module Auth
     # Implemented as a method (not constant) to ensure ENV vars are read at runtime
     # @return [Array<String>] List of allowed hostnames
     def allowed_redirect_hosts
-      @allowed_redirect_hosts ||= ENV.fetch('ALLOWED_ORIGINS', '')
-                                      .split(',')
+      @allowed_redirect_hosts ||= ENV.fetch("ALLOWED_ORIGINS", "")
+                                      .split(",")
                                       .map { |origin| URI.parse(origin.strip).host }
                                       .compact
     end
@@ -398,7 +398,7 @@ module Auth
       )
 
       # Expected issuer from environment
-      expected_issuer = ENV['AUTHLIFT_URL']
+      expected_issuer = ENV["AUTHLIFT_URL"]
 
       # Decode with comprehensive validation
       # Note: We disable verify_iat to handle clock skew tolerance manually
@@ -408,13 +408,13 @@ module Auth
         public_key,
         true,
         {
-          algorithm: 'RS256',
+          algorithm: "RS256",
           verify_expiration: true,
           verify_iat: false, # We'll validate iat manually with clock skew tolerance
           verify_iss: true,
           iss: expected_issuer,
           exp_leeway: 60,
-          nbf_leeway: 60,
+          nbf_leeway: 60
           # Note: We don't strictly validate 'aud' here because it varies by client application
           # Each client app should validate the audience matches their client_id
         }
@@ -424,12 +424,12 @@ module Auth
       current_time = Time.now.to_i
 
       # Validate subject (user ID) exists
-      unless decoded_token['sub'].present?
+      unless decoded_token["sub"].present?
         raise JWT::DecodeError, "Missing subject claim"
       end
 
       # Validate issued at time (iat) is not too far in the future (allow 60s clock skew)
-      if decoded_token['iat'] && decoded_token['iat'] > current_time + 60
+      if decoded_token["iat"] && decoded_token["iat"] > current_time + 60
         raise JWT::DecodeError, "Invalid iat"
       end
 
@@ -458,21 +458,21 @@ module Auth
     # @return [String] JWT token string
     def generate_jwt_for_user(user)
       # Find or create default OAuth application for token generation
-      application = Doorkeeper::Application.find_or_create_by!(name: 'Default Integration App') do |app|
-        app.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
-        app.scopes = 'public'
+      application = Doorkeeper::Application.find_or_create_by!(name: "Default Integration App") do |app|
+        app.redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+        app.scopes = "public"
         app.confidential = false
       end
 
       # In test environment or when Doorkeeper::JWT is not active, generate JWT manually
-      if Rails.env.test? || !Doorkeeper.configuration.access_token_generator.to_s.include?('JWT')
+      if Rails.env.test? || !Doorkeeper.configuration.access_token_generator.to_s.include?("JWT")
         # Generate JWT manually
         private_key = OpenSSL::PKey::RSA.new(
           Rails.application.credentials.dig(:doorkeeper, :private_key)
         )
 
         payload = {
-          iss: ENV['AUTHLIFT_URL'],
+          iss: ENV["AUTHLIFT_URL"],
           sub: user.id.to_s,
           aud: application.uid,
           iat: Time.now.to_i,
@@ -481,14 +481,14 @@ module Auth
           scopes: user.current_membership&.scopes || []
         }
 
-        JWT.encode(payload, private_key, 'RS256')
+        JWT.encode(payload, private_key, "RS256")
       else
         # Create a temporary access token record (JWT generated automatically by Doorkeeper::JWT)
         access_token = Doorkeeper::AccessToken.create!(
           resource_owner_id: user.id,
           application_id: application.id,
           expires_in: 1.hour.to_i,
-          scopes: user.current_membership&.scopes&.join(' ') || 'public'
+          scopes: user.current_membership&.scopes&.join(" ") || "public"
         )
 
         # The JWT token is automatically generated by Doorkeeper::JWT
