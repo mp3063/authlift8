@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_09_140100) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_10_075901) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -35,6 +35,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_140100) do
     t.string "domain", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "verified", default: false, null: false
     t.index ["company_id"], name: "index_application_domains_on_company_id"
     t.index ["oauth_application_id", "domain"], name: "index_app_domains_unique", unique: true
     t.index ["oauth_application_id"], name: "index_application_domains_on_oauth_application_id"
