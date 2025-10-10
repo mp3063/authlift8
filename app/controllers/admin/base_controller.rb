@@ -4,7 +4,7 @@ module Admin
     before_action :authenticate_user!
     before_action :require_super_admin!
 
-    layout 'admin'
+    layout "admin"
 
     private
 
@@ -12,7 +12,7 @@ module Admin
     # Super admins have platform-level access across all companies
     def require_super_admin!
       unless current_user.super_admin?
-        flash[:alert] = 'Access denied. Super admin privileges required.'
+        flash[:alert] = "Access denied. Super admin privileges required."
         redirect_to root_path
       end
     end

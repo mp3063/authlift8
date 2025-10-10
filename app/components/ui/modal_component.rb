@@ -23,7 +23,7 @@ module UI
 
     def modal_classes
       base = "relative bg-white rounded-lg shadow-xl w-full"
-      [base, SIZE_CLASSES[@size]].join(" ")
+      [ base, SIZE_CLASSES[@size] ].join(" ")
     end
 
     def backdrop_classes

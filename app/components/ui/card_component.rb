@@ -18,7 +18,7 @@ module UI
       base += " shadow-md" if @shadow
       base += " overflow-hidden"
 
-      [base, @html_options[:class]].compact.join(" ")
+      [ base, @html_options[:class] ].compact.join(" ")
     end
 
     def body_classes
