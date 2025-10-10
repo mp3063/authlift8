@@ -45,11 +45,13 @@ module Auth
         return
       end
 
+      # Build redirect URL with logged_in parameter
       return_url = URI(return_to)
       query_params = URI.decode_www_form(return_url.query || "").to_h
       query_params["logged_in"] = user_signed_in?.to_s
       return_url.query = URI.encode_www_form(query_params)
 
+      # Use safe redirect (URL already validated above)
       redirect_to return_url.to_s, allow_other_host: true, status: :see_other
     end
 
@@ -58,13 +60,7 @@ module Auth
     # SECURITY FIX: Enhanced JWT validation and redirect URL validation
     def logout
       token = params[:token]
-      return_to = params[:return_to] || root_url
-
-      # SECURITY FIX: Validate return_to URL
-      unless valid_redirect_url?(return_to)
-        Rails.logger.warn "Invalid redirect URL in logout: #{return_to}"
-        return_to = root_url
-      end
+      return_to = safe_redirect_url(params[:return_to] || root_url, log_context: "logout")
 
       if token.present?
         begin
@@ -119,15 +115,9 @@ module Auth
     def switch_company
       token = params[:token]
       company_code = params[:company_code]
-      return_to = params[:return_to] || root_url
-      url_was_sanitized = false
-
-      # SECURITY FIX: Validate return_to URL
-      unless valid_redirect_url?(return_to)
-        Rails.logger.warn "Invalid redirect URL in switch_company: #{return_to}"
-        return_to = root_url
-        url_was_sanitized = true
-      end
+      original_return_to = params[:return_to] || root_url
+      return_to = safe_redirect_url(original_return_to, log_context: "switch_company")
+      url_was_sanitized = (return_to != original_return_to)
 
       if token.blank? || company_code.blank?
         flash[:alert] = "Token and company code are required"
@@ -194,13 +184,7 @@ module Auth
     def change_language
       token = params[:token]
       language = params[:language]
-      return_to = params[:return_to] || root_url
-
-      # SECURITY FIX: Validate return_to URL
-      unless valid_redirect_url?(return_to)
-        Rails.logger.warn "Invalid redirect URL in change_language: #{return_to}"
-        return_to = root_url
-      end
+      return_to = safe_redirect_url(params[:return_to] || root_url, log_context: "change_language")
 
       if token.blank? || language.blank?
         flash[:alert] = "Token and language are required"
@@ -383,6 +367,23 @@ module Auth
     rescue URI::InvalidURIError => e
       # Invalid URI format - return false
       false
+    end
+
+    # SECURITY: Returns a safe redirect URL, validated against whitelist
+    # If URL is invalid or not allowed, returns root_url as fallback
+    # This method ensures Brakeman recognizes the redirect is safe
+    # @param url [String] The URL to validate and sanitize
+    # @param log_context [String] Context for logging (e.g., "logout", "switch_company")
+    # @return [String] Safe redirect URL (validated URL or root_url)
+    def safe_redirect_url(url, log_context: nil)
+      return root_url if url.blank?
+
+      if valid_redirect_url?(url)
+        url
+      else
+        Rails.logger.warn "Invalid redirect URL in #{log_context}: #{url}" if log_context
+        root_url
+      end
     end
 
     # SECURITY FIX: Enhanced JWT token validation with comprehensive claim checks

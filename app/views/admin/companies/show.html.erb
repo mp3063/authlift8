@@ -48,11 +48,7 @@
         <div>
           <dt class="text-sm font-medium text-gray-500">Website</dt>
           <dd class="mt-1 text-sm text-gray-900">
-            <% if @company.website.present? %>
-              <%= link_to @company.website, @company.website, target: "_blank", class: "text-blue-600 hover:text-blue-900" %>
-            <% else %>
-              -
-            <% end %>
+            <%= safe_website_link(@company.website) %>
           </dd>
         </div>
 
