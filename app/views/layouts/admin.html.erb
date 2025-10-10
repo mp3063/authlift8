@@ -32,12 +32,21 @@
 
       <!-- Navigation -->
       <nav class="p-4 space-y-1">
-        <%= link_to admin_root_path, class: "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors #{current_page?(admin_root_path) ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}" do %>
+        <%= link_to root_path, class: "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors border border-gray-200 text-gray-700 hover:bg-gray-50 mb-4" do %>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
           </svg>
-          <span>Dashboard</span>
+          <span>Back to Dashboard</span>
         <% end %>
+
+        <div class="pt-2 border-t border-gray-200">
+          <%= link_to admin_root_path, class: "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors #{current_page?(admin_root_path) ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span>Dashboard</span>
+          <% end %>
+        </div>
 
         <%= link_to admin_users_path, class: "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors #{controller_name == 'users' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}" do %>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,6 +67,13 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
           </svg>
           <span>OAuth Apps</span>
+        <% end %>
+
+        <%= link_to admin_api_keys_path, class: "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors #{controller_name == 'api_keys' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+          </svg>
+          <span>API Keys</span>
         <% end %>
       </nav>
 
