@@ -55,7 +55,7 @@
               <div class="py-1" role="menu">
                 <div class="px-4 py-2 text-xs text-gray-500 uppercase tracking-wide">Switch Company</div>
                 <% user_companies.each do |company| %>
-                  <%= link_to switch_company_path(company), data: { turbo_method: :post }, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 #{'bg-gray-50 font-medium' if company == current_company}", role: "menuitem" do %>
+                  <%= button_to switch_company_path(company), method: :post, data: { turbo: false }, class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 #{'bg-gray-50 font-medium' if company == current_company}", role: "menuitem" do %>
                     <div class="flex items-center">
                       <% if company == current_company %>
                         <svg class="h-5 w-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -138,7 +138,7 @@
 
               <div class="border-t border-gray-200"></div>
 
-              <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" do %>
+              <%= button_to destroy_user_session_path, method: :delete, data: { turbo: false }, class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" do %>
                 <div class="flex items-center">
                   <svg class="h-5 w-5 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
