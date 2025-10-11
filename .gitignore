@@ -11,6 +11,21 @@
 /vendor/bundle
 /vendor/cache
 
+# Ignore auto-generated gem binstubs (keep only project-specific ones)
+/bin/*
+!/bin/rails
+!/bin/rake
+!/bin/setup
+!/bin/bundle
+!/bin/brakeman
+!/bin/rubocop
+!/bin/dev
+!/bin/docker-entrypoint
+!/bin/importmap
+!/bin/kamal
+!/bin/jobs
+!/bin/thrust
+
 # Ignore all environment files (except .env.example).
 /.env*
 !/.env.example
