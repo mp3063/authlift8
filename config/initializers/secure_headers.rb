@@ -176,6 +176,8 @@ SecureHeaders::Configuration.default do |config|
     connect_src: %w[
       'self'
       https://api.yourdomain.com
+      http://localhost:3246
+      https://localhost:3246
     ],
 
     # Media sources (audio/video)
@@ -201,6 +203,8 @@ SecureHeaders::Configuration.default do |config|
     form_action: %w[
       'self'
       https://accounts.google.com
+      http://localhost:3246
+      https://localhost:3246
     ],
 
     # Frame ancestors (who can embed this page)
@@ -209,7 +213,8 @@ SecureHeaders::Configuration.default do |config|
     frame_ancestors: %w['none'],
 
     # Upgrade insecure requests to HTTPS
-    upgrade_insecure_requests: true
+    # Disable in development to allow localhost HTTP connections
+    upgrade_insecure_requests: Rails.env.production?
 
     # Report violations to this endpoint (optional)
     # Useful for monitoring CSP violations in production
