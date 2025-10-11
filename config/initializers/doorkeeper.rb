@@ -29,9 +29,10 @@ Doorkeeper.configure do
   grant_flows %w[authorization_code client_credentials password]
 
   # Skip authorization for trusted apps
-  skip_authorization do |resource_owner, client|
-    client.application.trusted?
-  end
+  # Disabled for now - add 'trusted' column to oauth_applications if needed
+  # skip_authorization do |resource_owner, client|
+  #   client.application.trusted?
+  # end
 
   # Enable application ownership
   enable_application_owner confirmation: false
@@ -64,7 +65,7 @@ Doorkeeper::JWT.configure do
 
     payload = {
       # Standard JWT claims
-      iss: ENV["AUTHLIFT_URL"],                    # Issuer
+      iss: ENV.fetch("AUTHLIFT_URL", "http://localhost:3231"),  # Issuer (falls back to localhost for development)
       sub: user.id.to_s,                           # Subject (user ID)
       aud: application&.uid,                       # Audience (client app)
       iat: Time.now.to_i,                          # Issued at
@@ -112,11 +113,8 @@ Doorkeeper::JWT.configure do
   # Use RS256 (asymmetric) for security
   signing_method :rs256
 
-  # Load private key from credentials
-  secret_key lambda {
-    private_key_content = Rails.application.credentials.dig(:doorkeeper, :private_key)
-    OpenSSL::PKey::RSA.new(private_key_content) if private_key_content
-  }
+  # Load private key from credentials as a direct value (not a block/Proc)
+  secret_key Rails.application.credentials.dig(:doorkeeper, :private_key)
 
   # Encryption (optional, for extra security)
   # encryption_method :dir
