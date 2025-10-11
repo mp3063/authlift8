@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html class="h-full bg-gray-50">
+  <head>
+    <title><%= content_for(:title) || "Authorize Application - Authlift" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%# Disable Turbo/Stimulus for OAuth flows - they require full page redirects %>
+    <%#= javascript_importmap_tags %>
+  </head>
+
+  <body class="h-full" data-turbo="false">
+    <%= render ::Shared::FlashComponent.new(flash: flash) if defined?(::Shared::FlashComponent) %>
+
+    <main>
+      <div class="<%= content_for?(:container_class) ? yield(:container_class) : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' %>">
+        <%= yield %>
+      </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="text-sm text-gray-500">
+            &copy; <%= Time.current.year %> Authlift. All rights reserved.
+          </div>
+          <div class="flex space-x-6 mt-4 md:mt-0">
+            <%= link_to "Privacy Policy", "#", class: "text-sm text-gray-500 hover:text-gray-700" %>
+            <%= link_to "Terms of Service", "#", class: "text-sm text-gray-500 hover:text-gray-700" %>
+            <%= link_to "Documentation", "#", class: "text-sm text-gray-500 hover:text-gray-700" %>
+            <%= link_to "Support", "#", class: "text-sm text-gray-500 hover:text-gray-700" %>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

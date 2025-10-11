@@ -86,7 +86,7 @@
 
     <!-- Actions -->
     <div class="space-y-3">
-      <%= form_tag oauth_authorization_path, method: :post do %>
+      <%= form_tag oauth_authorization_path, method: :post, data: { turbo: false } do %>
         <%= hidden_field_tag :client_id, @pre_auth.client.uid %>
         <%= hidden_field_tag :redirect_uri, @pre_auth.redirect_uri %>
         <%= hidden_field_tag :state, @pre_auth.state %>
