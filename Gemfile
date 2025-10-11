@@ -24,7 +24,7 @@ gem "jbuilder"
 # Authentication & Authorization
 gem "devise", "~> 4.9"               # User authentication
 gem "bcrypt", "~> 3.1"               # Password hashing
-gem "doorkeeper", "~> 5.7"           # OAuth2 server
+gem "doorkeeper", "~> 5.8"           # OAuth2 server
 gem "doorkeeper-jwt", "~> 0.4"       # JWT token support
 
 # Social Login

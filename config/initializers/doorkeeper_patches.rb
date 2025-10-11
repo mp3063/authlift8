@@ -10,6 +10,26 @@ Rails.application.config.to_prepare do
       find_by_token(token)
     end
 
+    # Add matching_token_for method for Rails 8 compatibility
+    # This method finds an existing token that matches the given parameters
+    def self.matching_token_for(application, resource_owner, scopes, custom_attributes: nil, include_expired: true)
+      tokens = where(
+        application_id: application&.id,
+        resource_owner_id: resource_owner&.id,
+        revoked_at: nil
+      )
+
+      # Filter out expired tokens unless include_expired is true
+      unless include_expired
+        tokens = tokens.where("expires_in IS NULL OR (created_at + (expires_in || ' seconds')::interval) > ?", Time.current)
+      end
+
+      # Find token matching scopes
+      tokens.detect do |token|
+        token.scopes.to_s == scopes.to_s
+      end
+    end
+
     # Add revoke_previous_refresh_token! if it doesn't exist
     unless instance_methods.include?(:revoke_previous_refresh_token!)
       def revoke_previous_refresh_token!

@@ -541,7 +541,7 @@ DEPENDENCIES
   database_cleaner-active_record
   debug
   devise (~> 4.9)
-  doorkeeper (~> 5.7)
+  doorkeeper (~> 5.8)
   doorkeeper-jwt (~> 0.4)
   factory_bot_rails
   faker
