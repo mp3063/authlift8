@@ -142,7 +142,16 @@ module Api
             state: company.state,
             postal_code: company.postal_code,
             country: company.country
-          }
+          },
+          # Include enabled customer groups
+          customer_groups: company.customer_groups.enabled.map do |cg|
+            {
+              id: cg.id,
+              name: cg.name,
+              group_type: cg.group_type,
+              pricing_rules: cg.pricing_rules
+            }
+          end
         }
       end
 

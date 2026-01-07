@@ -34,6 +34,9 @@ class User < ApplicationRecord
   scope :admins, -> { where(admin: true) }
   scope :super_admins, -> { where(super_admin: true) }
 
+  # Session invalidation callback
+  after_commit :invalidate_session_version, on: [:update]
+
   # Current company context
   # SECURITY: Only returns company if user has an active membership
   def current_company
@@ -160,5 +163,15 @@ class User < ApplicationRecord
     end
 
     user
+  end
+
+  private
+
+  def invalidate_session_version
+    # Only invalidate on relevant attribute changes
+    relevant_changes = %w[email first_name last_name locale admin super_admin company_id]
+    return unless relevant_changes.any? { |attr| saved_change_to_attribute?(attr) }
+
+    SessionVersionService.invalidate_user(self)
   end
 end

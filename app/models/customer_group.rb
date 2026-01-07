@@ -10,6 +10,9 @@ class CustomerGroup < ApplicationRecord
   # Scopes
   scope :enabled, -> { where(enabled: true) }
 
+  # Session invalidation callback
+  after_commit :invalidate_session_version, on: [:create, :update, :destroy]
+
   # Check if product is allowed for this group
   def product_allowed?(product_id)
     return true if product_restriction_rules.blank?
@@ -32,5 +35,11 @@ class CustomerGroup < ApplicationRecord
     price = base_price * multiplier
     price -= (price * discount / 100.0)
     price
+  end
+
+  private
+
+  def invalidate_session_version
+    SessionVersionService.invalidate_customer_groups(company)
   end
 end
