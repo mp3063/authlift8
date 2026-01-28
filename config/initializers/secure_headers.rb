@@ -203,6 +203,8 @@ SecureHeaders::Configuration.default do |config|
     form_action: %w[
       'self'
       https://accounts.google.com
+      http://localhost:3245
+      https://localhost:3245
       http://localhost:3246
       https://localhost:3246
     ],
