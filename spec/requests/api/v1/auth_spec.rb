@@ -69,10 +69,10 @@ RSpec.describe 'Api::V1::Auth', type: :request do
 
         expect(response).to have_http_status(:ok)
         body = JSON.parse(response.body)
-        expect(body['scopes']).to eq(['read'])
+        expect(body['scopes']).to eq([ 'read' ])
 
         claims = decode_jwt(body['token'])
-        expect(claims['scopes']).to eq(['read'])
+        expect(claims['scopes']).to eq([ 'read' ])
       end
 
       it 'returns 403 when requesting unauthorized scope' do

@@ -35,7 +35,7 @@ class User < ApplicationRecord
   scope :super_admins, -> { where(super_admin: true) }
 
   # Session invalidation callback
-  after_commit :invalidate_session_version, on: [:update]
+  after_commit :invalidate_session_version, on: [ :update ]
 
   # Current company context
   # SECURITY: Only returns company if user has an active membership

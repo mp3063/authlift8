@@ -17,7 +17,7 @@
 #   SessionVersionService.invalidate_customer_groups(company)
 #
 class SessionVersionService
-  REDIS_NAMESPACE = 'session_version'
+  REDIS_NAMESPACE = "session_version"
   VERSION_TTL = 7.days.to_i  # Auto-cleanup old keys
 
   class << self
@@ -81,7 +81,7 @@ class SessionVersionService
 
     def redis
       @redis ||= Redis.new(
-        url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0')
+        url: ENV.fetch("REDIS_URL", "redis://localhost:6379/0")
       )
     end
   end

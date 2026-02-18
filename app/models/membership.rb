@@ -8,7 +8,7 @@ class Membership < ApplicationRecord
   validates :user_id, uniqueness: { scope: :company_id }
 
   # Session invalidation callback
-  after_commit :invalidate_session_version, on: [:create, :update, :destroy]
+  after_commit :invalidate_session_version, on: [ :create, :update, :destroy ]
 
   # Scopes
   scope :active, -> { where(active: true) }

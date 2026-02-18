@@ -11,7 +11,7 @@ class CustomerGroup < ApplicationRecord
   scope :enabled, -> { where(enabled: true) }
 
   # Session invalidation callback
-  after_commit :invalidate_session_version, on: [:create, :update, :destroy]
+  after_commit :invalidate_session_version, on: [ :create, :update, :destroy ]
 
   # Check if product is allowed for this group
   def product_allowed?(product_id)
