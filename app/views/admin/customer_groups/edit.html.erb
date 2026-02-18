@@ -1,0 +1,27 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div>
+    <h1 class="text-3xl font-bold text-gray-900">Edit Customer Group</h1>
+    <p class="mt-2 text-gray-600">Update settings for <%= @customer_group.name %></p>
+  </div>
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm">
+    <%= link_to "Companies", admin_companies_path, class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <%= link_to @company.name, admin_company_path(@company), class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <%= link_to "Customer Groups", admin_company_customer_groups_path(@company), class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <span class="text-gray-900">Edit</span>
+  </nav>
+
+  <!-- Form -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <%= render "form",
+        customer_group: @customer_group,
+        url: admin_company_customer_group_path(@company, @customer_group),
+        method: :patch,
+        submit_label: "Update Customer Group" %>
+  <% end %>
+</div>

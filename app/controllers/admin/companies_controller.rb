@@ -34,6 +34,9 @@ module Admin
       # Partnership information
       @owned_partnerships = @company.owned_partnerships.includes(:partner_client).order("companies.name ASC")
       @client_partnerships = @company.client_partnerships.includes(:partner_owner).order("companies.name ASC")
+
+      # Customer groups
+      @customer_groups = @company.customer_groups.order(name: :asc)
     end
 
     # GET /admin/companies/new

@@ -1,0 +1,107 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Customer Groups</h1>
+      <p class="mt-2 text-gray-600">Manage pricing tiers and product access for <%= @company.name %></p>
+    </div>
+    <%= link_to "New Customer Group", new_admin_company_customer_group_path(@company), class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" %>
+  </div>
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm">
+    <%= link_to "Companies", admin_companies_path, class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <%= link_to @company.name, admin_company_path(@company), class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <span class="text-gray-900">Customer Groups</span>
+  </nav>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-4">
+    <% %w[wholesale retail vip partner].each do |type| %>
+      <% active = params[:group_type] == type %>
+      <%= link_to type.titleize,
+          admin_company_customer_groups_path(@company, group_type: (active ? nil : type)),
+          class: "px-3 py-1 text-sm rounded-full transition-colors #{active ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+    <% end %>
+    <% if params[:group_type].present? %>
+      <%= link_to "Clear", admin_company_customer_groups_path(@company), class: "text-sm text-gray-500 hover:text-gray-700" %>
+    <% end %>
+  </div>
+
+  <% if @customer_groups.any? %>
+    <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pricing</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @customer_groups.each do |group| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= link_to group.name, admin_company_customer_group_path(@company, group), class: "text-sm font-medium text-blue-600 hover:text-blue-900" %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% badge_colors = { "wholesale" => "bg-indigo-100 text-indigo-700", "retail" => "bg-emerald-100 text-emerald-700", "vip" => "bg-amber-100 text-amber-700", "partner" => "bg-sky-100 text-sky-700" } %>
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full <%= badge_colors[group.group_type] || 'bg-gray-100 text-gray-700' %>">
+                    <%= group.group_type&.titleize || "None" %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if group.enabled %>
+                    <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Enabled</span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Disabled</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <% if group.pricing_rules.present? %>
+                    <% multiplier = group.pricing_rules["price_multiplier"] %>
+                    <% discount = group.pricing_rules["discount_percentage"] %>
+                    <% parts = [] %>
+                    <% parts << "#{multiplier}x" if multiplier.present? && multiplier != 1.0 %>
+                    <% parts << "#{discount}% off" if discount.present? && discount > 0 %>
+                    <%= parts.any? ? parts.join(", ") : "Standard" %>
+                  <% else %>
+                    Standard
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end gap-2">
+                    <%= link_to "Edit", edit_admin_company_customer_group_path(@company, group), class: "text-yellow-600 hover:text-yellow-900" %>
+                    <span class="text-gray-300">|</span>
+                    <%= button_to "Delete", admin_company_customer_group_path(@company, group),
+                        method: :delete,
+                        form: { data: { turbo_confirm: "Are you sure you want to delete '#{group.name}'?" }, class: "inline" },
+                        class: "text-red-600 hover:text-red-900" %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  <% else %>
+    <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No customer groups</h3>
+        <p class="mt-1 text-sm text-gray-500">Get started by creating a new customer group with pricing rules.</p>
+        <div class="mt-6">
+          <%= link_to "New Customer Group", new_admin_company_customer_group_path(@company), class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

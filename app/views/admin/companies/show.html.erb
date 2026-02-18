@@ -289,6 +289,43 @@
     </div>
   <% end %>
 
+  <!-- Customer Groups -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Customer Groups (<%= @customer_groups.count %>)</h2>
+        <%= link_to "Manage", admin_company_customer_groups_path(@company), class: "text-sm text-blue-600 hover:text-blue-700 font-medium" %>
+      </div>
+    <% end %>
+
+    <div class="p-6">
+      <% if @customer_groups.any? %>
+        <div class="space-y-2">
+          <% @customer_groups.each do |group| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-3">
+                <%= link_to group.name, admin_company_customer_group_path(@company, group), class: "text-sm font-medium text-blue-600 hover:text-blue-900" %>
+                <% badge_colors = { "wholesale" => "bg-indigo-100 text-indigo-700", "retail" => "bg-emerald-100 text-emerald-700", "vip" => "bg-amber-100 text-amber-700", "partner" => "bg-sky-100 text-sky-700" } %>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full <%= badge_colors[group.group_type] || 'bg-gray-100 text-gray-700' %>">
+                  <%= group.group_type&.titleize || "None" %>
+                </span>
+              </div>
+              <% if group.enabled %>
+                <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Enabled</span>
+              <% else %>
+                <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Disabled</span>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500">No customer groups yet.
+          <%= link_to "Create one", new_admin_company_customer_group_path(@company), class: "text-blue-600 hover:text-blue-700" %>.
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+
   <!-- Danger Zone -->
   <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
     <% card.with_header do %>

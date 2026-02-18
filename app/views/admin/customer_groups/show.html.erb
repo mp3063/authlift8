@@ -1,0 +1,153 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900"><%= @customer_group.name %></h1>
+      <p class="mt-2 text-gray-600">Customer group for <%= @company.name %></p>
+    </div>
+    <div class="flex gap-3">
+      <%= link_to "Edit", edit_admin_company_customer_group_path(@company, @customer_group), class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" %>
+      <%= link_to "Back to Groups", admin_company_customer_groups_path(@company), class: "px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" %>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center gap-2 text-sm">
+    <%= link_to "Companies", admin_companies_path, class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <%= link_to @company.name, admin_company_path(@company), class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <%= link_to "Customer Groups", admin_company_customer_groups_path(@company), class: "text-blue-600 hover:text-blue-700" %>
+    <span class="text-gray-400">/</span>
+    <span class="text-gray-900"><%= @customer_group.name %></span>
+  </nav>
+
+  <!-- Group Details -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-900">Group Information</h2>
+    <% end %>
+
+    <div class="p-6">
+      <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @customer_group.name %></dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Type</dt>
+          <dd class="mt-1">
+            <% badge_colors = { "wholesale" => "bg-indigo-100 text-indigo-700", "retail" => "bg-emerald-100 text-emerald-700", "vip" => "bg-amber-100 text-amber-700", "partner" => "bg-sky-100 text-sky-700" } %>
+            <span class="px-2 py-1 text-xs font-semibold rounded-full <%= badge_colors[@customer_group.group_type] || 'bg-gray-100 text-gray-700' %>">
+              <%= @customer_group.group_type&.titleize || "None" %>
+            </span>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Status</dt>
+          <dd class="mt-1">
+            <% if @customer_group.enabled %>
+              <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Enabled</span>
+            <% else %>
+              <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">Disabled</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Created</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @customer_group.created_at.strftime('%B %d, %Y at %I:%M %p') %></dd>
+        </div>
+      </dl>
+    </div>
+  <% end %>
+
+  <!-- Pricing Rules -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-900">Pricing Rules</h2>
+    <% end %>
+
+    <div class="p-6">
+      <% if @customer_group.pricing_rules.present? && @customer_group.pricing_rules.values.any? { |v| v.present? } %>
+        <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Price Multiplier</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <% multiplier = @customer_group.pricing_rules["price_multiplier"] %>
+              <%= multiplier.present? ? "#{multiplier}x" : "1.0x (standard)" %>
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Discount Percentage</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <% discount = @customer_group.pricing_rules["discount_percentage"] %>
+              <%= discount.present? && discount > 0 ? "#{discount}%" : "No discount" %>
+            </dd>
+          </div>
+        </dl>
+      <% else %>
+        <p class="text-sm text-gray-500">No pricing rules configured. Standard pricing applies.</p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Product Restrictions -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-900">Product Restrictions</h2>
+    <% end %>
+
+    <div class="p-6 space-y-4">
+      <% rules = @customer_group.product_restriction_rules %>
+      <% if rules.present? && (rules["allowed_product_ids"].present? || rules["excluded_product_ids"].present?) %>
+        <% if rules["allowed_product_ids"].present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 mb-2">Allowed Products</dt>
+            <dd class="flex flex-wrap gap-2">
+              <% rules["allowed_product_ids"].each do |id| %>
+                <code class="px-2 py-1 bg-green-50 border border-green-200 rounded text-xs text-green-800"><%= id %></code>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
+
+        <% if rules["excluded_product_ids"].present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500 mb-2">Excluded Products</dt>
+            <dd class="flex flex-wrap gap-2">
+              <% rules["excluded_product_ids"].each do |id| %>
+                <code class="px-2 py-1 bg-red-50 border border-red-200 rounded text-xs text-red-800"><%= id %></code>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-sm text-gray-500">No product restrictions. All products are accessible.</p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Danger Zone -->
+  <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
+    <% end %>
+
+    <div class="p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-medium text-gray-900">Delete Customer Group</h3>
+          <p class="mt-1 text-sm text-gray-500">Permanently delete this customer group. This action cannot be undone.</p>
+        </div>
+        <%= button_to "Delete Group", admin_company_customer_group_path(@company, @customer_group),
+            method: :delete,
+            form: { data: { turbo_confirm: "Are you sure you want to delete '#{@customer_group.name}'? This action cannot be undone." } },
+            class: "px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium" %>
+      </div>
+    </div>
+  <% end %>
+</div>

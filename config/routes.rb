@@ -36,6 +36,7 @@ Rails.application.routes.draw do
     resources :companies do
       resources :memberships
       resources :partnerships
+      resources :customer_groups
     end
     resources :oauth_applications
     resources :api_keys
