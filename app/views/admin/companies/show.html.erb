@@ -115,6 +115,7 @@
     <% card.with_header do %>
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold text-gray-900">Company Members (<%= @memberships.count %>)</h2>
+        <%= link_to "Manage", admin_company_memberships_path(@company), class: "text-sm text-blue-600 hover:text-blue-700 font-medium" %>
       </div>
     <% end %>
 
@@ -173,6 +174,7 @@
     <% card.with_header do %>
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold text-gray-900">OAuth Applications (<%= @oauth_applications.count %>)</h2>
+        <%= link_to "Manage", admin_oauth_applications_path, class: "text-sm text-blue-600 hover:text-blue-700 font-medium" %>
       </div>
     <% end %>
 
@@ -235,7 +237,10 @@
   <!-- Partnerships -->
   <%= render ::UI::CardComponent.new(shadow: true) do |card| %>
     <% card.with_header do %>
-      <h2 class="text-lg font-semibold text-gray-900">Partnerships</h2>
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Partnerships</h2>
+        <%= link_to "Manage", admin_company_partnerships_path(@company), class: "text-sm text-blue-600 hover:text-blue-700 font-medium" %>
+      </div>
     <% end %>
 
     <div class="p-6 space-y-6">

@@ -32,7 +32,9 @@ Rails.application.routes.draw do
     root "dashboard#index"
     get "dashboard", to: "dashboard#index"
 
-    resources :users
+    resources :users do
+      post :add_to_company, on: :member
+    end
     resources :companies do
       resources :memberships
       resources :partnerships

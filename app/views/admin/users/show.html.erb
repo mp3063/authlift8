@@ -121,6 +121,32 @@
       </div>
     <% end %>
 
+    <!-- Add to Company -->
+    <% if @available_companies.any? %>
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <%= form_with url: add_to_company_admin_user_path(@user), method: :post, class: "flex items-end gap-3 flex-wrap", data: { turbo: false } do |f| %>
+          <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs font-medium text-gray-600 mb-1">Add to Company</label>
+            <%= f.select :company_id,
+                options_from_collection_for_select(@available_companies, :id, :name),
+                { prompt: "Select company..." },
+                class: "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+          </div>
+          <div class="w-36">
+            <label class="block text-xs font-medium text-gray-600 mb-1">Role</label>
+            <%= f.select :role,
+                [["Member", "member"], ["Admin", "admin"], ["Owner", "owner"]],
+                {},
+                class: "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">&nbsp;</label>
+            <%= f.submit "Add", class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">

@@ -1,8 +1,8 @@
 # app/controllers/admin/users_controller.rb
 module Admin
   class UsersController < Admin::BaseController
-    before_action :set_user, only: [ :show, :edit, :update, :destroy ]
-    before_action :authorize_user_access!, only: [ :show, :edit, :update, :destroy ]
+    before_action :set_user, only: [ :show, :edit, :update, :destroy, :add_to_company ]
+    before_action :authorize_user_access!, only: [ :show, :edit, :update, :destroy, :add_to_company ]
 
     # GET /admin/users
     def index
@@ -29,6 +29,9 @@ module Admin
     def show
       @memberships = @user.memberships.includes(:company).order("companies.name ASC")
       @oauth_tokens = @user.oauth_access_tokens.order(created_at: :desc).limit(10)
+      @available_companies = filter_companies_by_access(
+        Company.where.not(id: @user.memberships.pluck(:company_id)).order(:name)
+      )
     end
 
     # GET /admin/users/:id/edit
@@ -57,6 +60,25 @@ module Admin
             render :edit, status: :unprocessable_entity
           end
         end
+      end
+    end
+
+    # POST /admin/users/:id/add_to_company
+    def add_to_company
+      company = Company.find(params[:company_id])
+      authorize_company_access!(company)
+
+      membership = Membership.new(
+        user: @user,
+        company: company,
+        role: params[:role] || "member",
+        active: true
+      )
+
+      if membership.save
+        redirect_to admin_user_path(@user), notice: "#{@user.full_name} added to #{company.name}."
+      else
+        redirect_to admin_user_path(@user), alert: membership.errors.full_messages.join(", ")
       end
     end
 
