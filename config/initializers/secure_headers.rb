@@ -30,7 +30,7 @@ SecureHeaders::Configuration.default do |config|
   #   - ALLOW-FROM uri: Page can only be displayed in a frame on the specified origin
   #
   # Use SAMEORIGIN if you need to embed your own pages in iframes
-  config.x_frame_options = "DENY"
+  config.x_frame_options = Rails.env.development? ? SecureHeaders::OPT_OUT : "DENY"
 
   # =============================================================================
   # X-Content-Type-Options: nosniff
@@ -212,7 +212,7 @@ SecureHeaders::Configuration.default do |config|
     # Frame ancestors (who can embed this page)
     # This is a more modern alternative to X-Frame-Options
     # Set to 'none' to prevent all framing
-    frame_ancestors: %w['none'],
+    frame_ancestors: Rails.env.development? ? %w[*] : %w['none'],
 
     # Upgrade insecure requests to HTTPS
     # Disable in development to allow localhost HTTP connections
