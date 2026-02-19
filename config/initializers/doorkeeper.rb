@@ -20,8 +20,29 @@ Doorkeeper.configure do
   # Resource owner from credentials (for password grant)
   resource_owner_from_credentials do |routes|
     user = User.find_for_database_authentication(email: params[:username])
-    if user&.valid_password?(params[:password]) && user.active_for_authentication?
-      user
+    if user&.valid_password?(params[:password])
+      if user.active_for_authentication?
+        user
+      else
+        Rails.logger.warn(
+          "[SECURITY] OAuth password grant blocked for inactive user: " \
+          "Email=#{params[:username]} | " \
+          "Reason=#{user.inactive_message} | " \
+          "IP=#{routes.request.remote_ip} | " \
+          "Timestamp=#{Time.current.iso8601}"
+        )
+        nil
+      end
+    else
+      if params[:username].present?
+        Rails.logger.warn(
+          "[SECURITY] OAuth password grant failed: " \
+          "Email=#{params[:username]} | " \
+          "IP=#{routes.request.remote_ip} | " \
+          "Timestamp=#{Time.current.iso8601}"
+        )
+      end
+      nil
     end
   end
 
@@ -45,6 +66,20 @@ Doorkeeper.configure do
 
   # WWW-Authenticate Realm
   realm "Authlift"
+
+  # Security logging for successful password grant authorization
+  after_successful_authorization do |controller, context|
+    if controller.params[:grant_type] == "password"
+      token = context.issued_token
+      Rails.logger.info(
+        "[AUTH] OAuth password grant success: " \
+        "User=#{token&.resource_owner_id} | " \
+        "Email=#{controller.params[:username]} | " \
+        "IP=#{controller.request.remote_ip} | " \
+        "Timestamp=#{Time.current.iso8601}"
+      )
+    end
+  end
 end
 
 # JWT Configuration

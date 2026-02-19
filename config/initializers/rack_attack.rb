@@ -171,6 +171,55 @@ class Rack::Attack
     end
   end
 
+  # Extract OAuth password grant params from both form-encoded and JSON requests.
+  # Rack::Request#params only parses form-encoded/multipart bodies, not JSON.
+  # Without this, an attacker sending Content-Type: application/json bypasses
+  # the per-email throttle entirely.
+  # Note: counts ALL attempts (success + failure) — unlike the login form throttle,
+  # there is no counter reset on success. This is intentional: password grant is a
+  # machine-to-machine flow where 5 fresh auths per 20 minutes per email should be
+  # unusual (applications should use refresh tokens).
+  def self.oauth_password_grant_params(req)
+    return nil unless req.path == "/oauth/token" && req.post?
+
+    grant_type = req.params["grant_type"]
+    username = req.params["username"]
+
+    if grant_type.nil? && req.content_type&.include?("application/json")
+      begin
+        body = JSON.parse(req.body.read)
+        req.body.rewind
+        grant_type = body["grant_type"]
+        username = body["username"]
+      rescue JSON::ParserError
+        # Malformed JSON — skip throttle matching
+      end
+    end
+
+    return nil unless grant_type == "password"
+
+    { grant_type: grant_type, username: username }
+  end
+
+  # OAuth Password Grant - per email throttle
+  # Limit: 5 attempts per 20 minutes per email (matches login form protection)
+  # Security: Closes the 80x brute-force gap on the password grant endpoint
+  throttle("oauth-password-grant/email", limit: 5, period: 20.minutes) do |req|
+    pw_params = oauth_password_grant_params(req)
+    if pw_params
+      email = pw_params[:username]
+      "oauth-password:#{email.to_s.downcase}" if email.present?
+    end
+  end
+
+  # OAuth Password Grant - per IP (stricter than general oauth/token throttle)
+  # Limit: 10 password grant attempts per 20 minutes per IP
+  # Security: Prevents distributed brute force across multiple emails
+  throttle("oauth-password-grant/ip", limit: 10, period: 20.minutes) do |req|
+    pw_params = oauth_password_grant_params(req)
+    req.ip if pw_params
+  end
+
   # =============================================================================
   # LAYER 2: Authentication Endpoint Protection (Moderate)
   # =============================================================================
