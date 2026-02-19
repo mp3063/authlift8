@@ -127,6 +127,9 @@ SecureHeaders::Configuration.default do |config|
   # third-party services, and frontend build process.
   # =============================================================================
 
+  # Localhost URLs only allowed in development/test environments
+  dev_urls = Rails.env.local? ? %w[http://localhost:3245 https://localhost:3245 http://localhost:3246 https://localhost:3246] : []
+
   config.csp = {
     # Preserve existing CSP headers from the application
     preserve_schemes: true,
@@ -136,30 +139,28 @@ SecureHeaders::Configuration.default do |config|
     default_src: %w['self'],
 
     # Script sources - JavaScript execution
-    # Include your CDN, analytics, and frontend framework sources
+    # No unsafe-inline: all scripts must be in external files (Stimulus controllers, importmapped modules)
     script_src: %w[
       'self'
-      'unsafe-inline'
       https://cdn.jsdelivr.net
       https://unpkg.com
     ],
 
     # Style sources - CSS
-    # Include your CDN and any external stylesheets
+    # No unsafe-inline: Tailwind utility classes via class="" are unaffected.
+    # Only <style> blocks would be blocked, and there are none in app views.
     style_src: %w[
       'self'
-      'unsafe-inline'
       https://cdn.jsdelivr.net
       https://fonts.googleapis.com
     ],
 
     # Image sources
-    # Include data: for inline images, https: for all HTTPS images
+    # HTTPS only — no plain http: to prevent MITM image injection
     img_src: %w[
       'self'
       data:
       https:
-      http:
     ],
 
     # Font sources
@@ -172,13 +173,8 @@ SecureHeaders::Configuration.default do |config|
     ],
 
     # AJAX, WebSocket, and EventSource connections
-    # Include your API endpoints and third-party services
-    connect_src: %w[
-      'self'
-      https://api.yourdomain.com
-      http://localhost:3246
-      https://localhost:3246
-    ],
+    # Localhost URLs only in dev/test; add production API domain when deploying
+    connect_src: %w['self'] + dev_urls,
 
     # Media sources (audio/video)
     media_src: %w['self'],
@@ -199,15 +195,11 @@ SecureHeaders::Configuration.default do |config|
     base_uri: %w['self'],
 
     # Form submission targets
-    # Restrict where forms can submit data
+    # Localhost URLs only in dev/test; add production domains when deploying
     form_action: %w[
       'self'
       https://accounts.google.com
-      http://localhost:3245
-      https://localhost:3245
-      http://localhost:3246
-      https://localhost:3246
-    ],
+    ] + dev_urls,
 
     # Frame ancestors (who can embed this page)
     # This is a more modern alternative to X-Frame-Options
@@ -218,13 +210,12 @@ SecureHeaders::Configuration.default do |config|
     # Disable in development to allow localhost HTTP connections
     upgrade_insecure_requests: Rails.env.production?
 
-    # Report violations to this endpoint (optional)
-    # Useful for monitoring CSP violations in production
-    # report_uri: %w[/csp-violation-report-endpoint],
-
-    # Report-only mode - log violations without blocking (for testing)
-    # Uncomment to test CSP changes without breaking functionality
-    # report_only: true
+    # --- Production deployment: enable report-only mode first ---
+    # Before enforcing in production, uncomment report_only for 1-2 weeks to
+    # catch any legitimate resources that get blocked:
+    #   report_uri: %w[/csp-violations],
+    #   report_only: true
+    # Once clean, remove report_only to enforce the policy.
   }
 
   # =============================================================================
