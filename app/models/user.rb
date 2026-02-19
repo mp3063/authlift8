@@ -1,13 +1,11 @@
 # app/models/user.rb
 class User < ApplicationRecord
-  # Audit trail for security-sensitive changes
-  # audited
-  # Migration needed: rails g migration AddSuperAdminToUsers super_admin:boolean
-  # Then run: rails db:migrate
+  # Audit trail for security-sensitive credential/privilege changes
+  audited only: [ :email, :encrypted_password, :admin, :super_admin, :company_id ]
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
-         :trackable, :lockable, :omniauthable,
+         :trackable, :lockable, :timeoutable, :omniauthable,
          omniauth_providers: [ :google_oauth2, :github, :facebook, :twitter ]
 
   # Associations

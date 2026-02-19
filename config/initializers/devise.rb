@@ -24,7 +24,7 @@ Devise.setup do |config|
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
   # with default "from" parameter.
-  config.mailer_sender = "please-change-me-at-config-initializers-devise@example.com"
+  config.mailer_sender = ENV.fetch("MAILER_FROM", "noreply@authlift.local")
 
   # Configure the class responsible to send e-mails.
   # config.mailer = 'Devise::Mailer'
@@ -87,10 +87,9 @@ Devise.setup do |config|
   # The realm used in Http Basic Authentication. 'Application' by default.
   # config.http_authentication_realm = 'Application'
 
-  # It will change confirmation, password recovery and other workflows
-  # to behave the same regardless if the e-mail provided was right or wrong.
-  # Does not affect registerable.
-  # config.paranoid = true
+  # SECURITY: Paranoid mode — prevents user enumeration via password reset/confirmation
+  # Responses are identical regardless of whether the email exists
+  config.paranoid = true
 
   # By default Devise will store the user in session. You can skip storage for
   # particular strategies by setting this option.
@@ -128,11 +127,9 @@ Devise.setup do |config|
   # Set up a pepper to generate the hashed password.
   # config.pepper = 'ea8bf129afcb1532807d35ece95ca19aebc23f4dfcdc30342bbddf26c0511cbf2b2f10a2fc0871e8304a5512171c6ec5a67393b1dbfbbcac236f0e1638c0e962'
 
-  # Send a notification to the original email when the user's email is changed.
-  # config.send_email_changed_notification = false
-
-  # Send a notification email when the user's password is changed.
-  # config.send_password_change_notification = false
+  # SECURITY: Notify users when credentials change — prevents silent account takeover
+  config.send_email_changed_notification = true
+  config.send_password_change_notification = true
 
   # ==> Configuration for :confirmable
   # A period that the user is allowed to access the website even without
@@ -189,9 +186,8 @@ Devise.setup do |config|
   config.email_regexp = /\A[^@\s]+@[^@\s]+\z/
 
   # ==> Configuration for :timeoutable
-  # The time you want to timeout the user session without activity. After this
-  # time the user will be asked for credentials again. Default is 30 minutes.
-  # config.timeout_in = 30.minutes
+  # SECURITY: Auto-expire inactive sessions to limit hijacked session window
+  config.timeout_in = 2.hours
 
   # ==> Configuration for :lockable
   # Defines which strategy will be used to lock an account.

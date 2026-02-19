@@ -293,6 +293,14 @@ RSpec.describe User, type: :model do
     it 'includes omniauthable module' do
       expect(User.devise_modules).to include(:omniauthable)
     end
+
+    it 'includes timeoutable module' do
+      expect(User.devise_modules).to include(:timeoutable)
+    end
+
+    it 'includes lockable module' do
+      expect(User.devise_modules).to include(:lockable)
+    end
   end
 
   describe 'OmniAuth support' do

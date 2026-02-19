@@ -53,18 +53,19 @@ Rails.application.configure do
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
 
-  # Ignore bad email addresses and do not raise email delivery errors.
-  # Set this to true and configure the email server for immediate delivery to raise delivery errors.
-  # config.action_mailer.raise_delivery_errors = false
+  # TODO: Enable raise_delivery_errors once SMTP is configured
+  # config.action_mailer.raise_delivery_errors = true
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # SECURITY: No fallback — deployment MUST set APP_HOST for mailer links to work
+  config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST") }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
+  # TODO: Configure SMTP before production deploy. Add credentials via: EDITOR=vim rails credentials:edit
+  # Then uncomment below:
   # config.action_mailer.smtp_settings = {
   #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
   #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
+  #   address: Rails.application.credentials.dig(:smtp, :address) || "smtp.example.com",
   #   port: 587,
   #   authentication: :plain
   # }
