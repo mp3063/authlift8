@@ -7,8 +7,11 @@ RSpec.describe 'Auth::Integration', type: :request do
   let(:company) { create(:company, code: 'TEST123', name: 'Test Company') }
   let(:membership) { create(:membership, user: user, company: company, role: 'admin', scopes: [ 'products:read' ]) }
 
-  # Helper to generate JWT token
+  # Helper to generate JWT token with DB-backed access token for revocation check
   def generate_jwt_token(user)
+    app = Doorkeeper::Application.first || create(:oauth_application)
+    db_token = create(:oauth_access_token, application_id: app.id, resource_owner_id: user.id)
+
     private_key = OpenSSL::PKey::RSA.new(
       Rails.application.credentials.dig(:doorkeeper, :private_key)
     )
@@ -17,7 +20,8 @@ RSpec.describe 'Auth::Integration', type: :request do
       sub: user.id.to_s,
       exp: 1.hour.from_now.to_i,
       iat: Time.now.to_i,
-      iss: ENV['AUTHLIFT_URL'] || 'http://www.example.com'
+      iss: ENV['AUTHLIFT_URL'] || 'http://www.example.com',
+      jti: db_token.token
     }
 
     JWT.encode(payload, private_key, 'RS256')

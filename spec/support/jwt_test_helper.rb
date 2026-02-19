@@ -22,13 +22,19 @@ module JwtTestHelper
       Rails.application.credentials.dig(:doorkeeper, :private_key)
     )
 
+    # Create DB-backed token for revocation check unless jti is explicitly overridden
+    unless payload_overrides.key?(:jti)
+      app = Doorkeeper::Application.first || FactoryBot.create(:oauth_application)
+      db_token = FactoryBot.create(:oauth_access_token, application_id: app.id, resource_owner_id: user.id)
+      payload_overrides[:jti] = db_token.token
+    end
+
     default_payload = {
       iss: ENV['AUTHLIFT_URL'],
       sub: user.id.to_s,
       aud: 'test-client',
       iat: Time.now.to_i,
       exp: Time.now.to_i + 3600,
-      jti: SecureRandom.hex(32),
       user: {
         id: user.id,
         email: user.email,

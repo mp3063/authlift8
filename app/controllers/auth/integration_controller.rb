@@ -450,6 +450,19 @@ module Auth
         raise JWT::DecodeError, "Invalid iat"
       end
 
+      # SECURITY: Check if token has been revoked in the database
+      jti = decoded_token["jti"]
+      if jti.present?
+        access_token = Doorkeeper::AccessToken.find_by(token: jti)
+        if access_token.nil? || access_token.revoked?
+          Rails.logger.warn(
+            "SECURITY: Revoked JWT presented. jti=#{jti} " \
+            "sub=#{decoded_token['sub']} revoked_at=#{access_token&.revoked_at}"
+          )
+          raise JWT::DecodeError, "Token has been revoked"
+        end
+      end
+
       decoded_token
     rescue JWT::ExpiredSignature => e
       # Re-raise as-is (caller will log with context)
@@ -483,7 +496,16 @@ module Auth
 
       # In test environment or when Doorkeeper::JWT is not active, generate JWT manually
       if Rails.env.test? || !Doorkeeper.configuration.access_token_generator.to_s.include?("JWT")
-        # Generate JWT manually
+        # Create a DB-backed access token so jti revocation check works
+        token_value = Doorkeeper::OAuth::Helpers::UniqueToken.generate
+        access_token = Doorkeeper::AccessToken.create!(
+          resource_owner_id: user.id,
+          application_id: application.id,
+          token: token_value,
+          expires_in: 1.hour.to_i,
+          scopes: user.current_membership&.scopes&.join(" ") || "public"
+        )
+
         private_key = OpenSSL::PKey::RSA.new(
           Rails.application.credentials.dig(:doorkeeper, :private_key)
         )
@@ -494,7 +516,7 @@ module Auth
           aud: application.uid,
           iat: Time.now.to_i,
           exp: 1.hour.from_now.to_i,
-          jti: SecureRandom.hex(32),
+          jti: access_token.token,
           scopes: user.current_membership&.scopes || []
         }
 

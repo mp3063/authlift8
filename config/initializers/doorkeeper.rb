@@ -20,7 +20,7 @@ Doorkeeper.configure do
   # Resource owner from credentials (for password grant)
   resource_owner_from_credentials do |routes|
     user = User.find_for_database_authentication(email: params[:username])
-    if user&.valid_password?(params[:password])
+    if user&.valid_password?(params[:password]) && user.active_for_authentication?
       user
     end
   end

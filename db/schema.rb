@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_19_102028) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_19_120107) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -134,6 +134,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_19_102028) do
     t.index ["application_id"], name: "index_oauth_access_tokens_on_application_id"
     t.index ["refresh_token"], name: "index_oauth_access_tokens_on_refresh_token", unique: true
     t.index ["resource_owner_id"], name: "index_oauth_access_tokens_on_resource_owner_id"
+    t.index ["revoked_at"], name: "index_oauth_access_tokens_on_revoked_at"
     t.index ["token"], name: "index_oauth_access_tokens_on_token", unique: true
   end
 

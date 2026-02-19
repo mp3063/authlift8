@@ -23,15 +23,26 @@ RSpec.describe 'Auth::IntegrationController Security', type: :request do
     )
   end
 
+  # OAuth application for DB-backed tokens
+  let(:oauth_app) { create(:oauth_application) }
+
   # Generate a valid JWT token with custom claims
+  # Creates a DB-backed access token so jti revocation check passes
   def generate_jwt(payload_overrides = {})
+    # Create a DB-backed token unless caller overrides jti (e.g., for invalid-token tests)
+    unless payload_overrides.key?(:jti)
+      db_token = create(:oauth_access_token,
+                        application_id: oauth_app.id,
+                        resource_owner_id: user.id)
+      payload_overrides[:jti] = db_token.token
+    end
+
     default_payload = {
       iss: ENV['AUTHLIFT_URL'],
       sub: user.id.to_s,
       aud: 'test-client',
       iat: Time.now.to_i,
-      exp: Time.now.to_i + 3600,
-      jti: SecureRandom.hex(32)
+      exp: Time.now.to_i + 3600
     }
 
     payload = default_payload.merge(payload_overrides)
