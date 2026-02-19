@@ -9,6 +9,15 @@ FactoryBot.define do
     token { SecureRandom.hex(32) }
   end
 
+  factory :oauth_access_grant, class: 'Doorkeeper::AccessGrant' do
+    application_id { create(:oauth_application).id }
+    resource_owner_id { create(:user).id }
+    expires_in { 600 }
+    redirect_uri { 'urn:ietf:wg:oauth:2.0:oob' }
+    scopes { 'public' }
+    token { SecureRandom.hex(32) }
+  end
+
   factory :oauth_application, class: 'Doorkeeper::Application' do
     sequence(:name) { |n| "Test Application #{n}" }
     sequence(:uid) { |n| "test-app-#{n}" }

@@ -28,11 +28,10 @@ Doorkeeper.configure do
   # Grant flows
   grant_flows %w[authorization_code client_credentials password]
 
-  # Skip authorization for trusted apps
-  # Disabled for now - add 'trusted' column to oauth_applications if needed
-  # skip_authorization do |resource_owner, client|
-  #   client.application.trusted?
-  # end
+  # Skip authorization for trusted apps (trusted column exists on oauth_applications)
+  skip_authorization do |_resource_owner, client|
+    client.application.trusted?
+  end
 
   # Enable application ownership
   enable_application_owner confirmation: false

@@ -22,6 +22,9 @@ Rails.application.routes.draw do
   # Dashboard
   resource :dashboard, only: [ :show ], controller: "dashboard"
 
+  # Authorized applications (user self-service: view and revoke OAuth access)
+  resources :authorized_applications, only: [ :index, :destroy ]
+
   # Company switching
   post "switch_company/:id", to: "companies#switch", as: :switch_company
 
