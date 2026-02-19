@@ -33,7 +33,10 @@ Rails.application.routes.draw do
     get "dashboard", to: "dashboard#index"
 
     resources :users do
-      post :add_to_company, on: :member
+      member do
+        post :add_to_company
+        patch :unlock
+      end
     end
     resources :companies do
       resources :memberships

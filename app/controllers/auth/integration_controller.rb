@@ -66,6 +66,8 @@ module Auth
         begin
           payload = validate_jwt_token(token)
           user = User.find(payload["sub"])
+          check_user_locked!(user)
+          return if performed?
 
           # Log security event
           Rails.logger.info "Remote logout initiated for user #{user.id} (#{user.email})"
@@ -128,6 +130,8 @@ module Auth
       begin
         payload = validate_jwt_token(token)
         user = User.find(payload["sub"])
+        check_user_locked!(user)
+        return if performed?
 
         # SECURITY FIX: Only allow switching to companies with ACTIVE memberships
         active_membership = user.memberships.active.joins(:company)
@@ -203,6 +207,9 @@ module Auth
       begin
         payload = validate_jwt_token(token)
         user = User.find(payload["sub"])
+        check_user_locked!(user)
+        return if performed?
+
         membership = user.current_membership
 
         if membership
@@ -329,6 +336,15 @@ module Auth
     rescue ActionController::InvalidAuthenticityToken => e
       Rails.logger.error "CSRF validation failed: #{e.message}"
       render json: { error: "Invalid authenticity token" }, status: :forbidden
+    end
+
+    # SECURITY: Checks if user account is locked, returns 423 Locked if so.
+    # Prevents locked users from using pre-existing JWT tokens.
+    def check_user_locked!(user)
+      return unless user.access_locked?
+
+      Rails.logger.warn "SECURITY: Locked account attempted JWT action - User #{user.id} (#{user.email})"
+      render json: { error: "account_locked", message: "Account is temporarily locked." }, status: :locked
     end
 
     # SECURITY: Returns allowed redirect hosts from environment configuration

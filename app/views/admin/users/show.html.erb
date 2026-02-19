@@ -71,6 +71,23 @@
         </div>
 
         <div>
+          <dt class="text-sm font-medium text-gray-500">Account Status</dt>
+          <dd class="mt-1">
+            <% if @user.access_locked? %>
+              <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Locked</span>
+              <span class="ml-2 text-xs text-gray-500">since <%= @user.locked_at.strftime('%b %d, %Y at %I:%M %p') %></span>
+            <% else %>
+              <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Active</span>
+            <% end %>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Failed Login Attempts</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @user.failed_attempts %></dd>
+        </div>
+
+        <div>
           <dt class="text-sm font-medium text-gray-500">Sign In Count</dt>
           <dd class="mt-1 text-sm text-gray-900"><%= @user.sign_in_count || 0 %></dd>
         </div>
@@ -282,7 +299,20 @@
         <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
       <% end %>
 
-      <div class="p-6">
+      <div class="p-6 space-y-6">
+        <% if @user.access_locked? %>
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-medium text-gray-900">Unlock Account</h3>
+              <p class="mt-1 text-sm text-gray-500">This account is locked due to too many failed login attempts. Unlock it to restore access.</p>
+            </div>
+            <%= button_to "Unlock Account", unlock_admin_user_path(@user),
+                method: :patch,
+                form: { class: "inline" },
+                class: "px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium" %>
+          </div>
+        <% end %>
+
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-sm font-medium text-gray-900">Delete User</h3>

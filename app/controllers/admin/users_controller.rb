@@ -1,8 +1,8 @@
 # app/controllers/admin/users_controller.rb
 module Admin
   class UsersController < Admin::BaseController
-    before_action :set_user, only: [ :show, :edit, :update, :destroy, :add_to_company ]
-    before_action :authorize_user_access!, only: [ :show, :edit, :update, :destroy, :add_to_company ]
+    before_action :set_user, only: [ :show, :edit, :update, :destroy, :add_to_company, :unlock ]
+    before_action :authorize_user_access!, only: [ :show, :edit, :update, :destroy, :add_to_company, :unlock ]
 
     # GET /admin/users
     def index
@@ -80,6 +80,13 @@ module Admin
       else
         redirect_to admin_user_path(@user), alert: membership.errors.full_messages.join(", ")
       end
+    end
+
+    # PATCH /admin/users/:id/unlock
+    def unlock
+      @user.unlock_access!
+      Rails.logger.info "SECURITY: Admin #{current_user.id} (#{current_user.email}) unlocked account #{@user.id} (#{@user.email})"
+      redirect_to admin_user_path(@user), notice: "Account unlocked successfully."
     end
 
     # DELETE /admin/users/:id
