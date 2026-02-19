@@ -43,7 +43,9 @@ Rails.application.routes.draw do
     end
     resources :companies do
       resources :memberships
-      resources :partnerships
+      resources :partnerships do
+        resources :partnership_apps, only: [ :create, :destroy ]
+      end
       resources :customer_groups
     end
     resources :oauth_applications

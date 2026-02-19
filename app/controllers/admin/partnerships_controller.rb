@@ -17,6 +17,10 @@ module Admin
 
     # GET /admin/companies/:company_id/partnerships/:id
     def show
+      @partnership_apps = @partnership.partnership_apps.includes(:oauth_application)
+      @available_apps = Doorkeeper::Application.where(partnerships_allowed: true)
+                                               .where.not(id: @partnership.oauth_applications.pluck(:id))
+                                               .order(:name)
     end
 
     # GET /admin/companies/:company_id/partnerships/new
@@ -81,7 +85,7 @@ module Admin
     end
 
     def partnership_params
-      params.require(:partnership).permit(:partner_client_id, :active, :info, :settings)
+      params.require(:partnership).permit(:partner_client_id, :active, :managed_company, :info, :settings)
     end
   end
 end
