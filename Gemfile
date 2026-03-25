@@ -43,6 +43,9 @@ gem "secure_headers"                 # Security headers
 # UI & Frontend
 gem "view_component"                 # Component-based views
 
+# Logging
+gem "lograge"                        # Structured request logging
+
 # Utilities
 gem "jwt", "~> 2.7"                  # JWT handling
 gem "redis", "~> 5.0"                # Session store, cache

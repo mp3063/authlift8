@@ -24,6 +24,9 @@ module Authlift8
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # Tag logs with request_id for correlation across services
+    config.log_tags = [:request_id]
+
     # Configure ViewComponent paths (use push instead of << for frozen arrays)
     config.autoload_paths.push(Rails.root.join("app/components"))
     config.eager_load_paths.push(Rails.root.join("app/components"))

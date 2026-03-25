@@ -74,6 +74,10 @@ Rails.application.routes.draw do
   # API routes
   namespace :api do
     namespace :v1 do
+      # Health checks (no authentication required)
+      get "health", to: "health#show"
+      get "health/ready", to: "health#ready"
+
       # Public key endpoints (no authentication required)
       get ".well-known/jwks.json", to: "public_keys#jwks"
       get "public_key.pem", to: "public_keys#pem"
