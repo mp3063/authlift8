@@ -44,7 +44,7 @@ gem "secure_headers"                 # Security headers
 gem "view_component"                 # Component-based views
 
 # Utilities
-gem "jwt", "~> 2.7"                  # JWT handling
+gem "jwt", "~> 3.1"                  # JWT handling
 gem "redis", "~> 5.0"                # Session store, cache
 gem "audited", "~> 5.0"              # Audit trail
 
