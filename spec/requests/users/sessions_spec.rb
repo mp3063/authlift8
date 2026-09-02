@@ -85,6 +85,29 @@ RSpec.describe 'Users::Sessions', type: :request do
           expect(response).to redirect_to(dashboard_path)
         end
       end
+
+      context 'when arriving from an OAuth authorize request' do
+        let(:oauth_app) { create(:oauth_application, redirect_uri: 'http://localhost:3246/auth/callback') }
+        let(:authorize_path) do
+          oauth_authorization_path(
+            client_id: oauth_app.uid,
+            redirect_uri: oauth_app.redirect_uri,
+            response_type: 'code',
+            scope: 'public',
+            state: 'abc123'
+          )
+        end
+
+        it 'redirects back to the authorize request after sign in' do
+          get authorize_path
+          expect(response).to redirect_to(new_user_session_path)
+
+          post user_session_path, params: {
+            user: { email: user.email, password: 'password123456' }
+          }
+          expect(response).to redirect_to(authorize_path)
+        end
+      end
     end
 
     context 'with invalid credentials' do
