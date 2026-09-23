@@ -6,8 +6,22 @@ Rails.application.config.to_prepare do
   # Add by_token method for backward compatibility with Doorkeeper 5.x tests
   # Newer versions use find_by_token instead
   Doorkeeper::AccessToken.class_eval do
+    # Clients hold the JWT, whose jti claim is the stored token value
     def self.by_token(token)
-      find_by_token(token)
+      find_by_token(token) || find_by_jwt(token)
+    end
+
+    def self.find_by_jwt(token)
+      public_key = OpenSSL::PKey::RSA.new(Rails.application.credentials.dig(:doorkeeper, :public_key))
+      jti = JWT.decode(token.to_s, public_key, true, algorithm: "RS256", verify_expiration: false).first["jti"]
+      find_by_token(jti) if jti.present?
+    rescue JWT::DecodeError
+      nil
+    end
+
+    # Used by POST /oauth/revoke
+    def self.by_refresh_token(refresh_token)
+      find_by(refresh_token: refresh_token) if refresh_token.present?
     end
 
     # Add matching_token_for method for Rails 8 compatibility
@@ -62,6 +76,13 @@ Rails.application.config.to_prepare do
         return false if expires_in.nil?
 
         created_at + expires_in.seconds < Time.current
+      end
+    end
+
+    # Add accessible? method if it doesn't exist (used by POST /oauth/revoke)
+    unless instance_methods.include?(:accessible?)
+      def accessible?
+        !expired? && !revoked?
       end
     end
 
